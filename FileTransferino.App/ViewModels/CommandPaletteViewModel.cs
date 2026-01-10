@@ -41,11 +41,11 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
 
     public CommandPaletteViewModel() { }
 
-    public CommandPaletteViewModel(IThemeService themeService, string? originalThemeId, int debounceMs = 50)
+    public CommandPaletteViewModel(IThemeService themeService, string? originalThemeId, int debounceMilliseconds = 50)
     {
         _themeService = themeService;
         _originalThemeId = originalThemeId;
-        _debounceMs = debounceMs;
+        _debounceMs = debounceMilliseconds;
     }
 
     public string SearchText
