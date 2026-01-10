@@ -54,7 +54,7 @@ On startup, the app creates the following structure in the user's application da
 %APPDATA%\FileTransferino\          (Windows)
 ~/.config/FileTransferino/          (Linux/macOS)
     ├── data/
-    │   └── ftp-server.db     (SQLite database)
+    │   └── FileTransferino.db     (SQLite database)
     ├── logs/
     ├── themes/
     └── settings.json         (Application settings)

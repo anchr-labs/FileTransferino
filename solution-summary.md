@@ -112,7 +112,7 @@ FileTransferino.App
 ```
 %APPDATA%\FileTransferino\          (Windows)
 ~/.config/FileTransferino/          (Linux/macOS)
-    ├── data/ftp-server.db    (SQLite database)
+    ├── data/FileTransferino.db    (SQLite database)
     ├── logs/
     ├── themes/
     └── settings.json

@@ -89,10 +89,7 @@ public sealed class ThemeService : IThemeService
             }
 
             // Load and apply new theme
-            var newThemeResource = new ResourceInclude(new Uri(theme.ResourcePath))
-            {
-                Source = new Uri(theme.ResourcePath)
-            };
+            var newThemeResource = new ResourceInclude(new Uri(theme.ResourcePath));
 
             _app.Resources.MergedDictionaries.Add(newThemeResource);
             _currentThemeResource = newThemeResource;
