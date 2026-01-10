@@ -362,6 +362,8 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
         }
         catch
         {
+            // Any unexpected exception during deletion should be caught to prevent app crash.
+            // Return false to indicate deletion failed.
             return false;
         }
     }
