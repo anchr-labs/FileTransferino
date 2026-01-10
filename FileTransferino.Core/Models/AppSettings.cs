@@ -8,7 +8,7 @@ public sealed class AppSettings
     /// <summary>
     /// The currently active theme identifier.
     /// </summary>
-    public string ActiveThemeId { get; set; } = "Default";
+    public string ActiveThemeId { get; set; } = "Light";
 
     /// <summary>
     /// UTC timestamp of the first application run.
@@ -28,7 +28,7 @@ public sealed class AppSettings
         var now = DateTime.UtcNow;
         return new AppSettings
         {
-            ActiveThemeId = "Default",
+            ActiveThemeId = "Light",
             FirstRunUtc = now,
             LastRunUtc = now
         };
