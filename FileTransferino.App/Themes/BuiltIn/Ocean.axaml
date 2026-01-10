@@ -13,4 +13,15 @@
     <Color x:Key="ErrorColor">#F85149</Color>
     <Color x:Key="SuccessColor">#3FB950</Color>
     
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#0D1117" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#161B22" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#C9D1D9" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8B949E" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#30363D" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#58A6FF" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#79C0FF" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="#F85149" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#3FB950" />
+    
 </ResourceDictionary>

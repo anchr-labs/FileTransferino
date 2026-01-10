@@ -8,41 +8,49 @@
         Height="400"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
-        Background="{DynamicResource SurfaceBrush}"
-        BorderBrush="{DynamicResource BorderBrush}"
+        Topmost="True"
+        Background="#2D2D30"
+        BorderBrush="#3F3F46"
         BorderThickness="1">
 
     <Window.Styles>
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="Background" Value="#1E1E1E" />
+            <Setter Property="Foreground" Value="#CCCCCC" />
+            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="CaretBrush" Value="#CCCCCC" />
         </Style>
         
         <Style Selector="ListBox">
-            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="Background" Value="#1E1E1E" />
+            <Setter Property="BorderBrush" Value="#3F3F46" />
         </Style>
         
         <Style Selector="ListBoxItem">
             <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
         
-        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <!-- Selected item: just a left border indicator -->
+        <Style Selector="ListBoxItem:selected">
+            <Setter Property="Background" Value="#37373D" />
+            <Setter Property="BorderBrush" Value="#007ACC" />
         </Style>
         
-        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+        <!-- Hover: subtle background -->
+        <Style Selector="ListBoxItem:pointerover">
+            <Setter Property="Background" Value="#2A2D2E" />
         </Style>
         
         <Style Selector="TextBlock.commandName">
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="Foreground" Value="#CCCCCC" />
             <Setter Property="FontSize" Value="14" />
         </Style>
         
         <Style Selector="TextBlock.commandCategory">
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="Foreground" Value="#808080" />
             <Setter Property="FontSize" Value="12" />
         </Style>
     </Window.Styles>
@@ -58,7 +66,8 @@
                  x:Name="SearchBox" />
 
         <!-- Command List -->
-        <ListBox ItemsSource="{Binding FilteredCommands}"
+        <ListBox x:Name="CommandList"
+                 ItemsSource="{Binding FilteredCommands}"
                  SelectedItem="{Binding SelectedCommand}"
                  BorderThickness="0"
                  Margin="0">

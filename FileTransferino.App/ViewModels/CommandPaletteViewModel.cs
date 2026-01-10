@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿﻿using Avalonia.Threading;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using FileTransferino.App.Services;
 
 namespace FileTransferino.App.ViewModels;
 
@@ -14,6 +18,8 @@ public sealed class PaletteCommand
     public required string Name { get; init; }
     public required string Category { get; init; }
     public required Action Action { get; init; }
+    // Optional id (used for themes)
+    public string? Id { get; init; }
 }
 
 /// <summary>
@@ -27,17 +33,32 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
 
     public ObservableCollection<PaletteCommand> FilteredCommands { get; } = new();
 
+    // Theme preview support
+    private readonly IThemeService? _themeService;
+    private readonly string? _originalThemeId;
+    private CancellationTokenSource? _previewCts;
+    private readonly int _debounceMs = 50; // faster preview response
+
+    public CommandPaletteViewModel() { }
+
+    public CommandPaletteViewModel(IThemeService themeService, string? originalThemeId, int debounceMs = 50)
+    {
+        _themeService = themeService;
+        _originalThemeId = originalThemeId;
+        _debounceMs = debounceMs;
+    }
+
     public string SearchText
     {
         get => _searchText;
         set
         {
-            if (_searchText != value)
-            {
-                _searchText = value;
-                OnPropertyChanged();
-                FilterCommands();
-            }
+            if (_searchText == value)
+                return;
+
+            _searchText = value;
+            OnPropertyChanged();
+            FilterCommands();
         }
     }
 
@@ -95,7 +116,91 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
 
     public void ExecuteSelectedCommand()
     {
+        // Cancel any pending preview to avoid race
+        CancelPendingPreview();
         SelectedCommand?.Action.Invoke();
+    }
+
+    /// <summary>
+    /// Preview a theme (or other command) immediately. Used for selection changes.
+    /// </summary>
+    public void PreviewCommand(PaletteCommand? command)
+    {
+        if (command == null)
+            return;
+
+        // If we have a theme service and an id, apply theme preview immediately
+        if (_themeService != null && !string.IsNullOrEmpty(command.Id))
+        {
+            CancelPendingPreview();
+            // Apply immediately on UI thread
+            Dispatcher.UIThread.Post(() => _themeService.ApplyTheme(command.Id!));
+            return;
+        }
+
+        // Fallback: execute action immediately (non-theme commands)
+        command.Action.Invoke();
+    }
+
+    /// <summary>
+    /// Preview a theme with debounce. Used for hover preview to avoid spamming.
+    /// </summary>
+    public void PreviewCommandDebounced(PaletteCommand? command)
+    {
+        if (command == null)
+            return;
+
+        // If we have a theme service and an id, use debounced preview
+        if (_themeService != null && !string.IsNullOrEmpty(command.Id))
+        {
+            DebouncedApply(command.Id!);
+            return;
+        }
+    }
+
+    private void DebouncedApply(string themeId)
+    {
+        CancelPendingPreview();
+        _previewCts = new CancellationTokenSource();
+        var ct = _previewCts.Token;
+
+        // Fire-and-forget async debounce without blocking UI
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(_debounceMs, ct);
+                if (ct.IsCancellationRequested) return;
+
+                // Apply on UI thread via theme service (ApplyTheme may interact with Application resources)
+                await Dispatcher.UIThread.InvokeAsync(() => _themeService?.ApplyTheme(themeId));
+            }
+            catch (OperationCanceledException) { }
+            catch { /* swallow for safety */ }
+        }, ct);
+    }
+
+    private void CancelPendingPreview()
+    {
+        try
+        {
+            _previewCts?.Cancel();
+            _previewCts?.Dispose();
+            _previewCts = null;
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Restore the theme that was active when the palette opened.
+    /// </summary>
+    public void RestoreOriginalTheme()
+    {
+        CancelPendingPreview();
+        if (_themeService != null && !string.IsNullOrEmpty(_originalThemeId))
+        {
+            _themeService.ApplyTheme(_originalThemeId!);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

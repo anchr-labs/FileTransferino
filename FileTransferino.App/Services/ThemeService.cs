@@ -78,8 +78,11 @@ public sealed class ThemeService(
                 _currentThemeResource = null;
             }
 
-            // Load and apply new theme
-            var newThemeResource = new ResourceInclude(new Uri(theme.ResourcePath));
+            // Load and apply new theme - must set Source property
+            var newThemeResource = new ResourceInclude(new Uri("avares://FileTransferino.App/"))
+            {
+                Source = new Uri(theme.ResourcePath)
+            };
 
             app.Resources.MergedDictionaries.Add(newThemeResource);
             _currentThemeResource = newThemeResource;

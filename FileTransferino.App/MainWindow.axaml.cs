@@ -35,7 +35,8 @@ public partial class MainWindow : Window
         if (themeService == null)
             return;
 
-        var viewModel = new CommandPaletteViewModel();
+        // Pass themeService and current theme id for preview/restore support
+        var viewModel = new CommandPaletteViewModel(themeService, themeService.CurrentThemeId);
         
         // Register theme commands
         foreach (var theme in themeService.GetThemes())
@@ -45,11 +46,13 @@ public partial class MainWindow : Window
             {
                 Name = theme.DisplayName,
                 Category = "Theme",
+                Id = themeId,
                 Action = () => themeService.ApplyTheme(themeId)
             });
         }
         
         var paletteWindow = new CommandPaletteWindow(viewModel);
-        await paletteWindow.ShowDialog(this);
+        paletteWindow.Show(); // Use Show instead of ShowDialog so main window remains visible for preview
+        await Task.CompletedTask;
     }
 }
