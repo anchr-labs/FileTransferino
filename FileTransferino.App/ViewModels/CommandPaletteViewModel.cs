@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
 using FileTransferino.App.Services;
@@ -171,8 +172,15 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
                 // Apply on UI thread via theme service (ApplyTheme may interact with Application resources)
                 await Dispatcher.UIThread.InvokeAsync(() => _themeService?.ApplyTheme(themeId));
             }
-            catch (OperationCanceledException) { }
-            catch { /* swallow for safety */ }
+            catch (OperationCanceledException)
+            {
+                // Expected when preview is cancelled, no logging needed
+            }
+            catch (Exception ex)
+            {
+                // Log unexpected exceptions during theme preview
+                Debug.WriteLine($"Error during theme preview: {ex.Message}");
+            }
         }, ct);
     }
 
