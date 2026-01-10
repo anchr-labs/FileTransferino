@@ -79,7 +79,7 @@ public class App : Application
             _themeService = new ThemeService(this, _settingsStore, _settings);
             
             // Apply theme from settings (or default if empty)
-            var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Default" : _settings.ActiveThemeId;
+            var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Light" : _settings.ActiveThemeId;
             _themeService.ApplyTheme(themeId);
             Debug.WriteLine($"Theme applied: {themeId}");
 
