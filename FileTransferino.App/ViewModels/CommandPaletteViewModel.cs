@@ -178,8 +178,8 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                // Log unexpected exceptions during theme preview
-                Debug.WriteLine($"Error during theme preview: {ex.Message}");
+                // Log unexpected exceptions during theme preview with full details
+                Debug.WriteLine($"Error during theme preview: {ex}");
             }
         }, ct);
     }
