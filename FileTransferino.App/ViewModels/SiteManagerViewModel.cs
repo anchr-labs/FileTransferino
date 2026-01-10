@@ -304,7 +304,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 {
                     await _credentialStore.DeleteAsync(persisted.CredentialKey);
                 }
-                catch
+                catch (Exception)
                 {
                     // Credential deletion failure should not prevent site deletion
                 }
@@ -360,7 +360,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
             return true;
         }
-        catch
+        catch (Exception)
         {
             return false;
         }
