@@ -288,22 +288,15 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     /// </summary>
     public async Task<bool> DeleteSiteByIdAsync(int id)
     {
-        var logPath = Path.Combine(new AppPaths().Logs, "errors.log");
         try
         {
-            // Log start
-            try { File.AppendAllText(logPath, $"DeleteSiteByIdAsync start id={id} at {DateTime.UtcNow}\n"); } catch { }
-
             // Re-fetch persisted site to get up-to-date credential key
             var persisted = await _siteRepository.GetByIdAsync(id);
             if (persisted == null)
             {
                 System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: site id={id} not found in DB.");
-                try { File.AppendAllText(logPath, $"site id={id} not found\n"); } catch { }
                 return false;
             }
-
-            try { File.AppendAllText(logPath, $"persisted fetched id={persisted.Id} credentialKey={(persisted.CredentialKey ?? "(null)")}\n"); } catch { }
 
             // Delete credential if present
             if (!string.IsNullOrEmpty(persisted.CredentialKey))
@@ -311,12 +304,10 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 try
                 {
                     await _credentialStore.DeleteAsync(persisted.CredentialKey);
-                    try { File.AppendAllText(logPath, $"Credential deleted for {persisted.CredentialKey}\n"); } catch { }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Credential deletion failed for {persisted.CredentialKey}: {ex}");
-                    try { File.AppendAllText(logPath, $"Credential deletion failed for {persisted.CredentialKey}: {ex}\n"); } catch { }
                 }
             }
 
