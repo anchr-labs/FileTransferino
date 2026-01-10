@@ -141,7 +141,8 @@ public partial class CommandPaletteWindow : Window
             // Restore theme to original state if possible
             _viewModel.RestoreOriginalTheme();
             Close();
-        } else if (e.Key == Key.Enter)
+        }
+        else if (e.Key == Key.Enter)
         {
             _viewModel.ExecuteSelectedCommand();
             Close();
