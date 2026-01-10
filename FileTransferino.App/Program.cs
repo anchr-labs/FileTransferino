@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace FtpServer.App;
+namespace FileTransferino.App;
 
 internal class Program
 {

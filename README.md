@@ -1,34 +1,34 @@
-﻿﻿# FtpClient Solution
+﻿# FileTransferino Solution
 
-A .NET 10 solution for an FTP Server application with clean architecture.
+A .NET 10 solution for a File Transfer application with clean architecture.
 
 ## Project Structure
 
-### FtpServer.App (Avalonia UI Application)
+### FileTransferino.App (Avalonia UI Application)
 - **Type**: Desktop Application (Avalonia UI)
 - **Target Framework**: .NET 10
-- **Purpose**: User interface for the FTP server
+- **Purpose**: User interface for the file transfer application
 - **Dependencies**: References all other projects
 
-### FtpServer.Core (Class Library)
+### FileTransferino.Core (Class Library)
 - **Type**: Class Library
 - **Target Framework**: .NET 10
 - **Purpose**: Core business logic and domain models
 - **Dependencies**: None
 
-### FtpServer.Data (Class Library)
+### FileTransferino.Data (Class Library)
 - **Type**: Class Library
 - **Target Framework**: .NET 10
 - **Purpose**: Data access layer and repository patterns
 - **Dependencies**: None
 
-### FtpServer.Security (Class Library)
+### FileTransferino.Security (Class Library)
 - **Type**: Class Library
 - **Target Framework**: .NET 10
 - **Purpose**: Security, authentication, and authorization logic
 - **Dependencies**: None
 
-### FtpServer.Infrastructure (Class Library)
+### FileTransferino.Infrastructure (Class Library)
 - **Type**: Class Library
 - **Target Framework**: .NET 10
 - **Purpose**: External services, logging, and infrastructure concerns
@@ -37,35 +37,71 @@ A .NET 10 solution for an FTP Server application with clean architecture.
 ## Dependency Graph
 
 ```
-FtpServer.App
-    ├── FtpServer.Core
-    ├── FtpServer.Data
-    ├── FtpServer.Security
-    └── FtpServer.Infrastructure
+FileTransferino.App
+    ├── FileTransferino.Core
+    ├── FileTransferino.Data ──→ FileTransferino.Infrastructure ──→ FileTransferino.Core
+    ├── FileTransferino.Security
+    └── FileTransferino.Infrastructure ──→ FileTransferino.Core
 ```
 
-All class libraries are independent with no circular dependencies.
+All class libraries follow clean architecture with no circular dependencies.
+
+## Application Data
+
+On startup, the app creates the following structure in the user's application data directory:
+
+```
+%APPDATA%\FileTransferino\          (Windows)
+~/.config/FileTransferino/          (Linux/macOS)
+    ├── data/
+    │   └── ftp-server.db     (SQLite database)
+    ├── logs/
+    ├── themes/
+    └── settings.json         (Application settings)
+```
 
 ## Building the Solution
 
 ```powershell
-dotnet build FtpClient.sln
+dotnet build FileTransferino.sln
 ```
 
 ## Running the Application
 
 ```powershell
-dotnet run --project FtpServer.App\FtpServer.App.csproj
+dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 ```
+
+## Features
+
+### Theming System (Slice 1)
+- **5 Built-in Themes**: Light, Dark, Ocean, Nord, Monokai
+- **Semantic Tokens**: Centralized color tokens (Background, Surface, TextPrimary, etc.)
+- **Runtime Theme Switching**: Instant UI updates without restart
+- **Persistent Theme Settings**: Theme preference saved to settings.json
+
+### Command Palette (Slice 1)
+- **Keyboard Shortcut**: Press `Ctrl+K` to open
+- **Quick Theme Switching**: Search and apply themes instantly
+- **Fuzzy Search**: Filter commands by name or category
+- **Keyboard Navigation**: Use arrow keys and Enter to execute
 
 ## Notes
 
 - All projects target .NET 10
 - Nullable reference types are enabled across all projects
-- Implicit usings are enabled in class libraries
+- Implicit usings are enabled in all projects
 - The App project uses compiled bindings by default for Avalonia
-- Placeholder classes exist in each class library to establish namespace structure
-- No business logic is implemented yet - this is a skeleton solution
+- **Slice 0.2 Foundation implemented:**
+  - Cross-platform `AppPaths` for application directories
+  - JSON-based settings persistence via `SettingsStore`
+  - SQLite database with DbUp migrations
+  - Async initialization that doesn't block UI thread
+- **Slice 1 Theming & Command Palette implemented:**
+  - Semantic theme token system with 5 built-in themes
+  - IThemeService for runtime theme management
+  - Command palette overlay with Ctrl+K shortcut
+  - Theme persistence via existing SettingsStore
 
 ## Documentation
 

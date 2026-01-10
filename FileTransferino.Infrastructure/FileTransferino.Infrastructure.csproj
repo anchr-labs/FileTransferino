@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FileTransferino.Core\FileTransferino.Core.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,14 +1,13 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpServer.App", "FtpServer.App\FtpServer.App.csproj", "{ECB4547A-D43C-4211-A19B-895898A23F29}"
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferino.App", "FileTransferino.App\FileTransferino.App.csproj", "{ECB4547A-D43C-4211-A19B-895898A23F29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpServer.Core", "FtpServer.Core\FtpServer.Core.csproj", "{D3A82049-715C-4E20-9608-0F23E866DBF8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferino.Core", "FileTransferino.Core\FileTransferino.Core.csproj", "{D3A82049-715C-4E20-9608-0F23E866DBF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpServer.Data", "FtpServer.Data\FtpServer.Data.csproj", "{AE966EC8-7C9D-4AC9-895A-98568E0F312D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferino.Data", "FileTransferino.Data\FileTransferino.Data.csproj", "{AE966EC8-7C9D-4AC9-895A-98568E0F312D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpServer.Security", "FtpServer.Security\FtpServer.Security.csproj", "{96A2B38A-83A1-4673-B35A-AEE866A51E83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferino.Security", "FileTransferino.Security\FileTransferino.Security.csproj", "{96A2B38A-83A1-4673-B35A-AEE866A51E83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpServer.Infrastructure", "FtpServer.Infrastructure\FtpServer.Infrastructure.csproj", "{AA81092C-C1E2-4492-A439-87541EE18DAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferino.Infrastructure", "FileTransferino.Infrastructure\FileTransferino.Infrastructure.csproj", "{AA81092C-C1E2-4492-A439-87541EE18DAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

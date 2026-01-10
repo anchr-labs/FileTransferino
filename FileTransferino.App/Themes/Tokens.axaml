@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Semantic Color Tokens -->
+    <!-- These are placeholders that will be overridden by theme files -->
+    
+    <Color x:Key="BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="SurfaceColor">#F5F5F5</Color>
+    <Color x:Key="TextPrimaryColor">#000000</Color>
+    <Color x:Key="TextSecondaryColor">#666666</Color>
+    <Color x:Key="BorderColor">#CCCCCC</Color>
+    <Color x:Key="AccentColor">#0078D4</Color>
+    <Color x:Key="AccentHoverColor">#005A9E</Color>
+    <Color x:Key="ErrorColor">#D13438</Color>
+    <Color x:Key="SuccessColor">#107C10</Color>
+    
+    <!-- Brushes derived from colors -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource BackgroundColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource SurfaceColor}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource TextSecondaryColor}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{DynamicResource AccentHoverColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{DynamicResource ErrorColor}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}" />
+    
+</ResourceDictionary>

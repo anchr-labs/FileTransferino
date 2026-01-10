@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Monokai Theme -->
+    
+    <Color x:Key="BackgroundColor">#272822</Color>
+    <Color x:Key="SurfaceColor">#3E3D32</Color>
+    <Color x:Key="TextPrimaryColor">#F8F8F2</Color>
+    <Color x:Key="TextSecondaryColor">#75715E</Color>
+    <Color x:Key="BorderColor">#49483E</Color>
+    <Color x:Key="AccentColor">#66D9EF</Color>
+    <Color x:Key="AccentHoverColor">#A1EFE4</Color>
+    <Color x:Key="ErrorColor">#F92672</Color>
+    <Color x:Key="SuccessColor">#A6E22E</Color>
+    
+</ResourceDictionary>

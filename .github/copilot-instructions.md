@@ -1,4 +1,4 @@
-﻿﻿# GitHub Instructions for FtpClient Project
+﻿# GitHub Instructions for FileTransferino Project
 
 ## Essential Development Guidelines
 
@@ -18,34 +18,34 @@ These files serve as the source of truth for the project structure and should re
 
 **Build the entire solution:**
 ```powershell
-dotnet build FtpClient.sln
+dotnet build FileTransferino.sln
 ```
 
 **Clean build artifacts:**
 ```powershell
-dotnet clean FtpClient.sln
+dotnet clean FileTransferino.sln
 ```
 
 **Rebuild from scratch:**
 ```powershell
-dotnet clean FtpClient.sln; dotnet build FtpClient.sln
+dotnet clean FileTransferino.sln; dotnet build FileTransferino.sln
 ```
 
 **Run the Avalonia app:**
 ```powershell
-dotnet run --project FtpServer.App\FtpServer.App.csproj
+dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 ```
 
 **Restore NuGet packages:**
 ```powershell
-dotnet restore FtpClient.sln
+dotnet restore FileTransferino.sln
 ```
 
 ---
 
 ### 🏗️ Project Structure Rules
 
-- **FtpServer.App** → References ALL other projects
+- **FileTransferino.App** → References ALL other projects
 - **Class Libraries** → Should remain independent (no cross-references)
 - All projects target **.NET 10**
 - Maintain **clean architecture** principles
@@ -64,12 +64,12 @@ When adding a new project to the solution:
 
 2. Add to solution:
    ```powershell
-   dotnet sln FtpClient.sln add ProjectName\ProjectName.csproj
+   dotnet sln FileTransferino.sln add ProjectName\ProjectName.csproj
    ```
 
 3. Add references if needed:
    ```powershell
-   dotnet add FtpServer.App\FtpServer.App.csproj reference ProjectName\ProjectName.csproj
+   dotnet add FileTransferino.App\FileTransferino.App.csproj reference ProjectName\ProjectName.csproj
    ```
 
 4. **Update README.md and solution-summary.md** with the new project info
@@ -80,12 +80,12 @@ When adding a new project to the solution:
 
 **Run all tests (when test projects exist):**
 ```powershell
-dotnet test FtpClient.sln
+dotnet test FileTransferino.sln
 ```
 
 **Run tests with verbose output:**
 ```powershell
-dotnet test FtpClient.sln --logger "console;verbosity=detailed"
+dotnet test FileTransferino.sln --logger "console;verbosity=detailed"
 ```
 
 ---
@@ -94,12 +94,12 @@ dotnet test FtpClient.sln --logger "console;verbosity=detailed"
 
 **List all projects in solution:**
 ```powershell
-dotnet sln FtpClient.sln list
+dotnet sln FileTransferino.sln list
 ```
 
 **Check for errors:**
 ```powershell
-dotnet build FtpClient.sln --no-incremental
+dotnet build FileTransferino.sln --no-incremental
 ```
 
 ---
@@ -119,7 +119,7 @@ dotnet list reference
 
 **Format code:**
 ```powershell
-dotnet format FtpClient.sln
+dotnet format FileTransferino.sln
 ```
 
 ---
@@ -127,7 +127,7 @@ dotnet format FtpClient.sln
 ### 🚀 Git Workflow
 
 **Before committing:**
-1. Ensure solution builds: `dotnet build FtpClient.sln`
+1. Ensure solution builds: `dotnet build FileTransferino.sln`
 2. Update documentation if project structure changed
 3. Review changes: `git diff`
 4. Stage changes: `git add .`
