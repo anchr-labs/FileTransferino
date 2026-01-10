@@ -316,7 +316,6 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             if (!deleted)
             {
                 System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: failed to delete id={id} from DB.");
-                try { File.AppendAllText(logPath, $"failed to delete id={id} from DB\n"); } catch { }
                 return false;
             }
 
@@ -365,17 +364,14 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 catch (Exception uiEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync UI update failed: {uiEx}");
-                    try { File.AppendAllText(logPath, $"UI update failed: {uiEx}\n"); } catch { }
                 }
             });
 
-            try { File.AppendAllText(logPath, $"DeleteSiteByIdAsync end id={id} success at {DateTime.UtcNow}\n"); } catch { }
             return true;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync exception: {ex}");
-            try { File.AppendAllText(logPath, $"exception: {ex}\n"); } catch { }
             return false;
         }
     }
