@@ -9,6 +9,8 @@ using FileTransferino.Data;
 using FileTransferino.Data.Repositories;
 using FileTransferino.Infrastructure;
 using FileTransferino.Security;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FileTransferino.App;
 
@@ -21,10 +23,12 @@ public class App : Application
     private ThemeService? _themeService;
     private ISiteRepository? _siteRepository;
     private ICredentialStore? _credentialStore;
+    private ServiceProvider? _serviceProvider;
 
     public IThemeService? ThemeService => _themeService;
     public ISiteRepository? SiteRepository => _siteRepository;
     public ICredentialStore? CredentialStore => _credentialStore;
+    public IServiceProvider? Services => _serviceProvider;
 
     public override void Initialize()
     {
@@ -62,6 +66,16 @@ public class App : Application
             Debug.WriteLine($"Data: {_appPaths.Data}");
             Debug.WriteLine($"Themes: {_appPaths.Themes}");
             Debug.WriteLine($"Logs: {_appPaths.Logs}");
+
+            // Step 1.5: Set up logging
+            Debug.WriteLine("Setting up logging...");
+            var services = new ServiceCollection();
+            services.AddLogging(builder =>
+            {
+                var logFilePath = Path.Combine(_appPaths.Logs, "app.log");
+                builder.AddFileLogger(logFilePath);
+                builder.SetMinimumLevel(LogLevel.Information);
+            });
 
             // Step 2: Load settings
             Debug.WriteLine("Loading settings...");
@@ -102,32 +116,15 @@ public class App : Application
             _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
             Debug.WriteLine("Repositories initialized.");
 
-            // Global exception handlers (log to file)
-            try
-            {
-                AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-                {
-                    var ex = e.ExceptionObject as Exception;
-                    var msg = $"UnhandledException: {ex}";
-                    Debug.WriteLine(msg);
-                    try
-                    {
-                        File.AppendAllText(Path.Combine(_appPaths.Logs, "errors.log"), msg + "\n");
-                    }
-                    catch { }
-                };
-
-                TaskScheduler.UnobservedTaskException += (s, e) =>
-                {
-                    Debug.WriteLine($"UnobservedTaskException: {e.Exception}");
-                    try
-                    {
-                        File.AppendAllText(Path.Combine(_appPaths.Logs, "errors.log"), e.Exception + "\n");
-                    }
-                    catch { }
-                };
-            }
-            catch { }
+            // Register repositories in DI
+            services.AddSingleton(_siteRepository);
+            services.AddSingleton(_credentialStore);
+            
+            // Build service provider
+            _serviceProvider = services.BuildServiceProvider();
+            
+            var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
+            logger.LogInformation("Application initialized successfully");
 
             Debug.WriteLine("Application initialization complete.");
         }
