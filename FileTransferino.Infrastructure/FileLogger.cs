@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace FileTransferino.Infrastructure;
 
@@ -44,15 +45,24 @@ public sealed class FileLogger : ILogger
 
         try
         {
+            // Ensure the directory exists before writing
+            var directory = Path.GetDirectoryName(_logFilePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             lock (_lock)
             {
                 File.AppendAllText(_logFilePath, logEntry);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail if we can't write to the log file
-            // This prevents logging errors from crashing the application
+            // Fallback to Debug output if file logging fails
+            // This ensures critical errors are still captured
+            Debug.WriteLine($"[FileLogger] Failed to write to log file: {ex.Message}");
+            Debug.WriteLine($"[FileLogger] Original log entry: {logEntry}");
         }
     }
 }
