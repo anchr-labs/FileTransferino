@@ -25,6 +25,7 @@ public class App : Application
     public IThemeService? ThemeService => _themeService;
     public ISiteRepository? SiteRepository => _siteRepository;
     public ICredentialStore? CredentialStore => _credentialStore;
+    public AppPaths? AppPaths => _appPaths;
 
     public override void Initialize()
     {
