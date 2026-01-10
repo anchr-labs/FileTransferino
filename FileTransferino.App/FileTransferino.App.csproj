@@ -9,21 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.10" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.10" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.10" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.10">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\FileTransferino.UI\FileTransferino.UI.csproj" />
     <ProjectReference Include="..\FileTransferino.Core\FileTransferino.Core.csproj" />
     <ProjectReference Include="..\FileTransferino.Data\FileTransferino.Data.csproj" />
     <ProjectReference Include="..\FileTransferino.Infrastructure\FileTransferino.Infrastructure.csproj" />
     <ProjectReference Include="..\FileTransferino.Security\FileTransferino.Security.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
   </ItemGroup>
 </Project>

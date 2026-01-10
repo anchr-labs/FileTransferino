@@ -1,5 +1,4 @@
-﻿using System;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
 using FileTransferino.App.ViewModels;
 
@@ -32,8 +31,7 @@ public partial class CommandPaletteWindow : Window
         if (e.Key == Key.Escape)
         {
             Close();
-        }
-        else if (e.Key == Key.Enter)
+        } else if (e.Key == Key.Enter)
         {
             _viewModel.ExecuteSelectedCommand();
             Close();

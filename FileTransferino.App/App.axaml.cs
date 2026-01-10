@@ -70,7 +70,7 @@ public class App : Application
 
             // Step 3.5: Initialize and apply theme
             Debug.WriteLine("Initializing theme service...");
-            _themeService = new ThemeService(this, _settingsStore, _settings);
+            _themeService = new ThemeService(this, _settingsStore, _settings, null);
             
             // Apply theme from settings (or default if empty)
             var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Default" : _settings.ActiveThemeId;

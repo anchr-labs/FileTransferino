@@ -1,12 +1,6 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
-using Avalonia.Styling;
 using FileTransferino.Core.Models;
 using FileTransferino.Infrastructure;
 
@@ -15,59 +9,55 @@ namespace FileTransferino.App.Services;
 /// <summary>
 /// Implementation of theme service that manages theme switching at runtime.
 /// </summary>
-public sealed class ThemeService : IThemeService
+public sealed class ThemeService(
+    Application app,
+    SettingsStore settingsStore,
+    AppSettings settings,
+    ResourceInclude? currentThemeResource) : IThemeService
 {
-    private readonly Application _app;
-    private readonly SettingsStore _settingsStore;
-    private readonly AppSettings _settings;
-    private ResourceInclude? _currentThemeResource;
-    private string _currentThemeId;
+    private ResourceInclude? _currentThemeResource = currentThemeResource;
 
-    private static readonly List<ThemeDefinition> BuiltInThemes = new()
-    {
-        new ThemeDefinition 
-        { 
-            Id = "Light", 
-            DisplayName = "Light", 
-            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Light.axaml" 
+    private static readonly List<ThemeDefinition> BuiltInThemes =
+    [
+        new()
+        {
+            Id = "Light",
+            DisplayName = "Light",
+            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Light.axaml"
         },
-        new ThemeDefinition 
-        { 
-            Id = "Dark", 
-            DisplayName = "Dark", 
-            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Dark.axaml" 
+
+        new()
+        {
+            Id = "Dark",
+            DisplayName = "Dark",
+            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Dark.axaml"
         },
-        new ThemeDefinition 
-        { 
-            Id = "Ocean", 
-            DisplayName = "Ocean", 
-            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Ocean.axaml" 
+
+        new()
+        {
+            Id = "Ocean",
+            DisplayName = "Ocean",
+            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Ocean.axaml"
         },
-        new ThemeDefinition 
-        { 
-            Id = "Nord", 
-            DisplayName = "Nord", 
-            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Nord.axaml" 
+
+        new()
+        {
+            Id = "Nord",
+            DisplayName = "Nord",
+            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Nord.axaml"
         },
-        new ThemeDefinition 
-        { 
-            Id = "Monokai", 
-            DisplayName = "Monokai", 
-            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Monokai.axaml" 
+
+        new()
+        {
+            Id = "Monokai",
+            DisplayName = "Monokai",
+            ResourcePath = "avares://FileTransferino.App/Themes/BuiltIn/Monokai.axaml"
         }
-    };
-
-    public ThemeService(Application app, SettingsStore settingsStore, AppSettings settings)
-    {
-        _app = app ?? throw new ArgumentNullException(nameof(app));
-        _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-        _currentThemeId = settings.ActiveThemeId;
-    }
+    ];
 
     public IReadOnlyList<ThemeDefinition> GetThemes() => BuiltInThemes;
 
-    public string CurrentThemeId => _currentThemeId;
+    public string CurrentThemeId { get; private set; } = settings.ActiveThemeId;
 
     public void ApplyTheme(string themeId)
     {
@@ -84,20 +74,20 @@ public sealed class ThemeService : IThemeService
             // Remove existing theme resource if present
             if (_currentThemeResource != null)
             {
-                _app.Resources.MergedDictionaries.Remove(_currentThemeResource);
+                app.Resources.MergedDictionaries.Remove(_currentThemeResource);
                 _currentThemeResource = null;
             }
 
             // Load and apply new theme
             var newThemeResource = new ResourceInclude(new Uri(theme.ResourcePath));
 
-            _app.Resources.MergedDictionaries.Add(newThemeResource);
+            app.Resources.MergedDictionaries.Add(newThemeResource);
             _currentThemeResource = newThemeResource;
-            _currentThemeId = themeId;
+            CurrentThemeId = themeId;
 
             // Persist to settings
-            _settings.ActiveThemeId = themeId;
-            _settingsStore.Save(_settings);
+            settings.ActiveThemeId = themeId;
+            settingsStore.Save(settings);
 
             Debug.WriteLine($"Theme applied: {theme.DisplayName}");
         }
