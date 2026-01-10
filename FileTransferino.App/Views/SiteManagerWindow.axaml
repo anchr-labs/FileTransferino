@@ -193,7 +193,7 @@
                             <TextBlock Text="Default Local Path"
                                        Classes="secondary" />
                             <TextBox Text="{Binding DefaultLocalPath}"
-                                     Watermark="C:\Downloads" />
+                                     Watermark="~/Downloads" />
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
