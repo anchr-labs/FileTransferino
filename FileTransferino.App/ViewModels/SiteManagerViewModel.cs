@@ -293,10 +293,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             // Re-fetch persisted site to get up-to-date credential key
             var persisted = await _siteRepository.GetByIdAsync(id);
             if (persisted == null)
-            {
-                System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: site id={id} not found in DB.");
                 return false;
-            }
 
             // Delete credential if present
             if (!string.IsNullOrEmpty(persisted.CredentialKey))
@@ -305,77 +302,62 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 {
                     await _credentialStore.DeleteAsync(persisted.CredentialKey);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    System.Diagnostics.Debug.WriteLine($"Credential deletion failed for {persisted.CredentialKey}: {ex}");
+                    // Credential deletion failed, but continue with site deletion
                 }
             }
 
             // Delete from DB
             var deleted = await _siteRepository.DeleteAsync(id);
             if (!deleted)
-            {
-                System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: failed to delete id={id} from DB.");
-                try { File.AppendAllText(logPath, $"failed to delete id={id} from DB\n"); } catch { }
                 return false;
-            }
 
             // Update UI collection on UI thread
             await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                try
+                var index = -1;
+                for (var i = 0; i < Sites.Count; i++)
                 {
-                    var index = -1;
-                    for (var i = 0; i < Sites.Count; i++)
+                    if (Sites[i].Id == id)
                     {
-                        if (Sites[i].Id == id)
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
-
-                    if (index >= 0 && index < Sites.Count)
-                        Sites.RemoveAt(index);
-
-                    // Choose new selection
-                    SiteProfile? newSelection = null;
-                    if (Sites.Count > 0)
-                    {
-                        var pickIndex = Math.Min(Math.Max(0, index), Sites.Count - 1);
-                        if (pickIndex >= 0 && pickIndex < Sites.Count)
-                            newSelection = Sites[pickIndex];
-                    }
-
-                    SelectedSite = newSelection;
-
-                    if (SelectedSite == null)
-                    {
-                        Name = "New Site";
-                        Protocol = "FTP";
-                        Host = string.Empty;
-                        Port = 21;
-                        Username = string.Empty;
-                        Password = string.Empty;
-                        DefaultRemotePath = "/";
-                        DefaultLocalPath = string.Empty;
-                        _isPasswordChanged = false;
+                        index = i;
+                        break;
                     }
                 }
-                catch (Exception uiEx)
+
+                if (index >= 0 && index < Sites.Count)
+                    Sites.RemoveAt(index);
+
+                // Choose new selection
+                SiteProfile? newSelection = null;
+                if (Sites.Count > 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync UI update failed: {uiEx}");
-                    try { File.AppendAllText(logPath, $"UI update failed: {uiEx}\n"); } catch { }
+                    var pickIndex = Math.Min(Math.Max(0, index), Sites.Count - 1);
+                    if (pickIndex >= 0 && pickIndex < Sites.Count)
+                        newSelection = Sites[pickIndex];
+                }
+
+                SelectedSite = newSelection;
+
+                if (SelectedSite == null)
+                {
+                    Name = "New Site";
+                    Protocol = "FTP";
+                    Host = string.Empty;
+                    Port = 21;
+                    Username = string.Empty;
+                    Password = string.Empty;
+                    DefaultRemotePath = "/";
+                    DefaultLocalPath = string.Empty;
+                    _isPasswordChanged = false;
                 }
             });
 
-            try { File.AppendAllText(logPath, $"DeleteSiteByIdAsync end id={id} success at {DateTime.UtcNow}\n"); } catch { }
             return true;
         }
-        catch (Exception ex)
+        catch
         {
-            System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync exception: {ex}");
-            try { File.AppendAllText(logPath, $"exception: {ex}\n"); } catch { }
             return false;
         }
     }
