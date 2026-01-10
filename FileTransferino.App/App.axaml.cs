@@ -6,7 +6,9 @@ using Avalonia.Markup.Xaml;
 using FileTransferino.App.Services;
 using FileTransferino.Core.Models;
 using FileTransferino.Data;
+using FileTransferino.Data.Repositories;
 using FileTransferino.Infrastructure;
+using FileTransferino.Security;
 
 namespace FileTransferino.App;
 
@@ -17,8 +19,12 @@ public class App : Application
     private AppSettings? _settings;
     private DatabaseBootstrapper? _dbBootstrapper;
     private ThemeService? _themeService;
+    private ISiteRepository? _siteRepository;
+    private ICredentialStore? _credentialStore;
 
     public IThemeService? ThemeService => _themeService;
+    public ISiteRepository? SiteRepository => _siteRepository;
+    public ICredentialStore? CredentialStore => _credentialStore;
 
     public override void Initialize()
     {
@@ -70,7 +76,7 @@ public class App : Application
 
             // Step 3.5: Initialize and apply theme
             Debug.WriteLine("Initializing theme service...");
-            _themeService = new ThemeService(this, _settingsStore, _settings, null);
+            _themeService = new ThemeService(this, _settingsStore, _settings);
             
             // Apply theme from settings (or default if empty)
             var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Default" : _settings.ActiveThemeId;
@@ -89,6 +95,40 @@ public class App : Application
             }
 
             Debug.WriteLine("Database bootstrap completed successfully.");
+            
+            // Step 5: Initialize repositories and services
+            Debug.WriteLine("Initializing repositories...");
+            _siteRepository = new SiteRepository(_dbBootstrapper.ConnectionString);
+            _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
+            Debug.WriteLine("Repositories initialized.");
+
+            // Global exception handlers (log to file)
+            try
+            {
+                AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                {
+                    var ex = e.ExceptionObject as Exception;
+                    var msg = $"UnhandledException: {ex}";
+                    Debug.WriteLine(msg);
+                    try
+                    {
+                        File.AppendAllText(Path.Combine(_appPaths.Logs, "errors.log"), msg + "\n");
+                    }
+                    catch { }
+                };
+
+                TaskScheduler.UnobservedTaskException += (s, e) =>
+                {
+                    Debug.WriteLine($"UnobservedTaskException: {e.Exception}");
+                    try
+                    {
+                        File.AppendAllText(Path.Combine(_appPaths.Logs, "errors.log"), e.Exception + "\n");
+                    }
+                    catch { }
+                };
+            }
+            catch { }
+
             Debug.WriteLine("Application initialization complete.");
         }
         catch (Exception ex)

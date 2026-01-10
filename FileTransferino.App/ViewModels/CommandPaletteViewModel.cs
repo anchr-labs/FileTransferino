@@ -1,11 +1,7 @@
-using Avalonia.Threading;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+using Avalonia.Threading;
 using FileTransferino.App.Services;
 
 namespace FileTransferino.App.ViewModels;
@@ -129,17 +125,17 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
         if (command == null)
             return;
 
-        // If we have a theme service and an id, apply theme preview immediately
+        // Only preview if it's a theme command (has Id and ThemeService)
+        // Do NOT execute non-theme commands on selection change
         if (_themeService != null && !string.IsNullOrEmpty(command.Id))
         {
             CancelPendingPreview();
             // Apply immediately on UI thread
             Dispatcher.UIThread.Post(() => _themeService.ApplyTheme(command.Id!));
-            return;
         }
-
-        // Fallback: execute action immediately (non-theme commands)
-        command.Action.Invoke();
+        
+        // Non-theme commands should NOT be executed on selection change
+        // They should only execute on Enter or Click
     }
 
     /// <summary>

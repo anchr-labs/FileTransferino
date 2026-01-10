@@ -51,8 +51,27 @@ public partial class MainWindow : Window
             });
         }
         
+        // Register Site Manager command
+        viewModel.RegisterCommand(new PaletteCommand
+        {
+            Name = "Open Site Manager",
+            Category = "Sites",
+            Action = () => OpenSiteManager()
+        });
+        
         var paletteWindow = new CommandPaletteWindow(viewModel);
         paletteWindow.Show(); // Use Show instead of ShowDialog so main window remains visible for preview
         await Task.CompletedTask;
+    }
+
+    private async void OpenSiteManager()
+    {
+        var app = Application.Current as App;
+        if (app?.SiteRepository == null || app?.CredentialStore == null)
+            return;
+
+        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore);
+        var siteManager = new SiteManagerWindow(viewModel);
+        await siteManager.ShowDialog(this);
     }
 }

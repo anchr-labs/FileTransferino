@@ -12,10 +12,9 @@ namespace FileTransferino.App.Services;
 public sealed class ThemeService(
     Application app,
     SettingsStore settingsStore,
-    AppSettings settings,
-    ResourceInclude? currentThemeResource) : IThemeService
+    AppSettings settings) : IThemeService
 {
-    private ResourceInclude? _currentThemeResource = currentThemeResource;
+    private ResourceInclude? _currentThemeResource;
 
     private static readonly List<ThemeDefinition> BuiltInThemes =
     [
