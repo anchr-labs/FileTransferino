@@ -1,0 +1,20 @@
+﻿############################################
+# Avalonia / UI cache
+############################################
+*.axaml.cache
+*.pdb
+
+############################################
+# Local app runtime data
+############################################
+AppData/
+appdata/
+.local/
+.cache/
+
+############################################
+# User preferences (generated at runtime)
+############################################
+settings.json
+user-settings.json
+window-state.json
