@@ -1,6 +1,6 @@
 ﻿# FileTransferino Solution - Status Summary
 
-**Last Updated:** January 10, 2026 (Slice 1 Complete)
+**Last Updated:** January 11, 2026 (Slice 2 Complete)
 
 ## Solution Overview
 
@@ -45,6 +45,25 @@ The **FileTransferino.sln** is a .NET 10 solution for a File Transfer applicatio
 - **Dependencies:** None
 - **Status:** ✅ Built successfully
 
+### 6. FileTransferino.UI (Class Library)
+- **Type:** Class Library
+- **Framework:** .NET 10
+- **Purpose:** Shared UI components and controls
+- **Dependencies:** None
+- **Status:** ✅ Built successfully
+
+### 7. FileTransferino.Mobile (Mobile Application Suite)
+- **Type:** Mobile Application (Uno Platform)
+- **Frameworks:** .NET 10 (Multiple targets: Android, iOS, Browser, Desktop)
+- **Purpose:** Cross-platform mobile application
+- **Projects:**
+  - FileTransferino.Mobile (shared code)
+  - FileTransferino.Mobile.Android
+  - FileTransferino.Mobile.iOS
+  - FileTransferino.Mobile.Browser
+  - FileTransferino.Mobile.Desktop
+- **Status:** ⚠️ In development (Android requires JDK 21)
+
 ---
 
 ## Dependency Graph
@@ -52,9 +71,13 @@ The **FileTransferino.sln** is a .NET 10 solution for a File Transfer applicatio
 ```
 FileTransferino.App
     ├─→ FileTransferino.Core
-    ├─→ FileTransferino.Data ──→ FileTransferino.Infrastructure ──→ FileTransferino.Core
-    ├─→ FileTransferino.Security
-    └─→ FileTransferino.Infrastructure ──→ FileTransferino.Core
+    ├─→ FileTransferino.Data ──→ FileTransferino.Core, FileTransferino.Infrastructure
+    ├─→ FileTransferino.Security ──→ FileTransferino.Infrastructure
+    ├─→ FileTransferino.Infrastructure
+    └─→ FileTransferino.UI
+
+FileTransferino.Mobile
+    └─→ (separate mobile-specific dependencies)
 ```
 
 ✅ **No circular dependencies**
@@ -105,8 +128,41 @@ FileTransferino.App
   - ListBox of commands (Enter executes, Esc closes)
   - "Theme: <Name>" commands for each built-in theme
   - CommandPaletteViewModel with fuzzy search
+  - Real-time theme preview on arrow navigation
+  - Single-click theme application
+  - Debounced preview to avoid UI stutter
 - ✅ **App Integration** - Theme applied on startup from settings
 - ✅ **Ctrl+K Gesture** - Registered in MainWindow
+
+### Slice 2 Site Manager (Completed)
+- ✅ **Database Schema** - 002_sites.sql migration
+  - Sites table (Id, Name, Protocol, Host, Port, Username, paths, CredentialKey, timestamps)
+  - Index on (Host, Port, Username) for efficient lookups
+- ✅ **Data Models** - SiteProfile in FileTransferino.Core
+  - Required properties: Name, Protocol, Host, Port
+  - Optional: Username, DefaultRemotePath, DefaultLocalPath, CredentialKey
+  - CreatedUtc, UpdatedUtc timestamps
+- ✅ **Repository Pattern** - ISiteRepository + SiteRepository (Dapper)
+  - GetAllAsync(), GetByIdAsync(id), InsertAsync(site), UpdateAsync(site), DeleteAsync(id)
+  - Async CRUD operations with SQLite
+- ✅ **Secure Credential Storage** - ICredentialStore + WindowsDpapiCredentialStore
+  - Windows DPAPI encryption (user-scoped)
+  - Encrypted files stored in {Root}/secrets/ folder
+  - SaveAsync(key, secret), GetAsync(key), DeleteAsync(key)
+  - Database stores only CredentialKey reference (never plaintext)
+- ✅ **Site Manager UI** - SiteManagerWindow + SiteManagerViewModel (MVVM)
+  - Left panel: ListBox of saved sites
+  - Right panel: Form fields (Name, Protocol dropdown, Host, Port, Username, Password, paths)
+  - Buttons: New, Save, Delete, Close
+  - Password handling: empty=keep existing, non-empty=update
+  - Protocol auto-sets default ports (FTP/FTPS=21, SFTP=22)
+  - Fixed color scheme (not affected by theme changes)
+  - Confirmation dialog for deletions
+  - Robust error handling with logging
+- ✅ **Command Palette Integration** - "Sites: Open Site Manager" command
+- ✅ **Logging** - Structured logging with ILogger<T> and file logging
+  - errors.log in {Root}/logs/ folder
+  - Debug output for troubleshooting
 
 ### Application Data Location
 ```

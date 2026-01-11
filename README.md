@@ -1,4 +1,4 @@
-﻿# FileTransferino Solution
+﻿﻿﻿# FileTransferino Solution
 
 A .NET 10 solution for a File Transfer application with clean architecture.
 
@@ -34,14 +34,36 @@ A .NET 10 solution for a File Transfer application with clean architecture.
 - **Purpose**: External services, logging, and infrastructure concerns
 - **Dependencies**: None
 
+### FileTransferino.UI (Class Library)
+- **Type**: Class Library
+- **Target Framework**: .NET 10
+- **Purpose**: Shared UI components and controls
+- **Dependencies**: None
+
+### FileTransferino.Mobile (Mobile Projects)
+- **Type**: Mobile Application Suite (Uno Platform)
+- **Target Frameworks**: Multiple (Android, iOS, Browser, Desktop)
+- **Purpose**: Cross-platform mobile application
+- **Projects**: 
+  - FileTransferino.Mobile (shared code)
+  - FileTransferino.Mobile.Android
+  - FileTransferino.Mobile.iOS
+  - FileTransferino.Mobile.Browser
+  - FileTransferino.Mobile.Desktop
+- **Status**: ⚠️ In development (Android requires JDK 21)
+
 ## Dependency Graph
 
 ```
 FileTransferino.App
     ├── FileTransferino.Core
-    ├── FileTransferino.Data ──→ FileTransferino.Infrastructure ──→ FileTransferino.Core
-    ├── FileTransferino.Security
-    └── FileTransferino.Infrastructure ──→ FileTransferino.Core
+    ├── FileTransferino.Data ──→ FileTransferino.Core, FileTransferino.Infrastructure
+    ├── FileTransferino.Security ──→ FileTransferino.Infrastructure
+    ├── FileTransferino.Infrastructure
+    └── FileTransferino.UI
+
+FileTransferino.Mobile
+    └── (separate mobile-specific dependencies)
 ```
 
 All class libraries follow clean architecture with no circular dependencies.
@@ -56,8 +78,11 @@ On startup, the app creates the following structure in the user's application da
     ├── data/
     │   └── FileTransferino.db     (SQLite database)
     ├── logs/
+    │   └── errors.log             (Application error log)
     ├── themes/
-    └── settings.json         (Application settings)
+    ├── secrets/                    (Encrypted credentials - Windows DPAPI)
+    │   └── *.dat                  (Encrypted password files)
+    └── settings.json              (Application settings)
 ```
 
 ## Building the Solution
@@ -85,6 +110,21 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 - **Quick Theme Switching**: Search and apply themes instantly
 - **Fuzzy Search**: Filter commands by name or category
 - **Keyboard Navigation**: Use arrow keys and Enter to execute
+- **Theme Preview**: Arrow keys preview themes in real-time
+- **Single-Click Apply**: Click a theme to apply it immediately
+
+### Site Manager (Slice 2)
+- **Secure Credential Storage**: Passwords encrypted with Windows DPAPI
+- **FTP/FTPS/SFTP Support**: Configure connection profiles for all protocols
+- **Profile Management**: Create, edit, and delete site profiles
+- **Database Persistence**: Site profiles stored in SQLite (002_sites.sql migration)
+- **Encrypted Secrets**: Credentials stored in `{Root}/secrets/` folder (never in database)
+- **Command Palette Integration**: Open with "Sites: Open Site Manager" command
+- **CRUD Operations**: 
+  - Add new sites (New button)
+  - Edit existing sites (select from list)
+  - Delete sites (with confirmation dialog)
+  - Auto-port selection (FTP/FTPS=21, SFTP=22)
 
 ## Notes
 
@@ -102,6 +142,17 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
   - IThemeService for runtime theme management
   - Command palette overlay with Ctrl+K shortcut
   - Theme persistence via existing SettingsStore
+  - Real-time theme preview while navigating
+  - Single-click theme application
+- **Slice 2 Site Manager implemented:**
+  - SiteProfile model with required properties
+  - 002_sites.sql migration (Sites table with timestamps)
+  - ISiteRepository + SiteRepository (Dapper-based CRUD)
+  - ICredentialStore + WindowsDpapiCredentialStore (Windows DPAPI encryption)
+  - SiteManagerWindow + SiteManagerViewModel (MVVM pattern)
+  - Secure password storage (encrypted files in secrets/ folder)
+  - Command palette integration ("Open Site Manager")
+  - Full CRUD operations with confirmation dialogs
 
 ## Documentation
 
