@@ -11,6 +11,7 @@ public partial class CommandPaletteWindow : Window
     private readonly CommandPaletteViewModel _viewModel;
     private ListBox? _list;
     private TextBox? _searchBox;
+    private bool _selectionConfirmed;
 
     /// <summary>
     /// Parameterless constructor required by the XAML loader and design-time tools.
@@ -42,6 +43,11 @@ public partial class CommandPaletteWindow : Window
         // Close when clicking outside or losing focus
         Deactivated += (_, _) =>
         {
+            // Restore original theme when closing without confirming
+            if (!_selectionConfirmed)
+            {
+                _viewModel.RestoreOriginalTheme();
+            }
             Close();
         };
         
@@ -111,7 +117,7 @@ public partial class CommandPaletteWindow : Window
         if (e.Key == Key.Down)
         {
             e.Handled = true;
-            
+
             // Move selection down
             var currentIndex = _list.SelectedIndex;
             if (currentIndex < _viewModel.FilteredCommands.Count - 1)
@@ -122,21 +128,21 @@ public partial class CommandPaletteWindow : Window
             {
                 _list.SelectedIndex = 0;
             }
-            
+
             // Focus the list so arrow keys continue to work
             _list.Focus();
         }
         else if (e.Key == Key.Up)
         {
             e.Handled = true;
-            
+
             // Move selection up
             var currentIndex = _list.SelectedIndex;
             if (currentIndex > 0)
             {
                 _list.SelectedIndex = currentIndex - 1;
             }
-            
+
             // Focus the list
             _list.Focus();
         }
@@ -152,6 +158,7 @@ public partial class CommandPaletteWindow : Window
         }
         else if (e.Key == Key.Enter)
         {
+            _selectionConfirmed = true;
             _viewModel.ExecuteSelectedCommand();
             Close();
         }
@@ -175,6 +182,8 @@ public partial class CommandPaletteWindow : Window
             var cmd = _viewModel.SelectedCommand;
             if (cmd != null)
             {
+                // Mark as confirmed so theme isn't restored on close
+                _selectionConfirmed = true;
                 // Cancel pending previews and execute immediately
                 _viewModel.ExecuteSelectedCommand();
             }
