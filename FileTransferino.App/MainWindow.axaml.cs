@@ -74,8 +74,7 @@ public partial class MainWindow : Window
 
         var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
 
-        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, logger);
-        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths);
+        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
         var siteManager = new SiteManagerWindow(viewModel);
         await siteManager.ShowDialog(this);
     }

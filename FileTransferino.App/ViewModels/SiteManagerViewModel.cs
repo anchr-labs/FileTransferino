@@ -335,7 +335,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                     _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
                 }
-                catch
+                catch (Exception ex)
                 {
                     _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
@@ -380,32 +380,27 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
                 SelectedSite = newSelection;
 
-                    if (SelectedSite == null)
-                    {
-                        Name = "New Site";
-                        Protocol = "FTP";
-                        Host = string.Empty;
-                        Port = 21;
-                        Username = string.Empty;
-                        Password = string.Empty;
-                        DefaultRemotePath = "/";
-                        DefaultLocalPath = string.Empty;
-                        _isPasswordChanged = false;
-                    }
-
-                    _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}",
-                        SelectedSite?.Name ?? "(none)");
-                }
-                catch (Exception uiEx)
+                if (SelectedSite == null)
                 {
-                    _logger?.LogError(uiEx, "Failed to update UI after deleting site with ID {SiteId}", id);
+                    Name = "New Site";
+                    Protocol = "FTP";
+                    Host = string.Empty;
+                    Port = 21;
+                    Username = string.Empty;
+                    Password = string.Empty;
+                    DefaultRemotePath = "/";
+                    DefaultLocalPath = string.Empty;
+                    _isPasswordChanged = false;
                 }
+
+                _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}",
+                    SelectedSite?.Name ?? "(none)");
             });
 
             _logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             _logger?.LogError(ex, "Unexpected error during site deletion for ID {SiteId}", id);
             return false;
