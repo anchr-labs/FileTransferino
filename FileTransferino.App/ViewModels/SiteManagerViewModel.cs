@@ -321,7 +321,6 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             {
                 _logger?.LogWarning("Site with ID {SiteId} not found in database", id);
                 return false;
-            }
 
             _logger?.LogDebug("Fetched site {SiteName} (ID: {SiteId}) with credential key: {CredentialKey}",
                 persisted.Name, persisted.Id, persisted.CredentialKey ?? "(null)");
@@ -349,7 +348,6 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             {
                 _logger?.LogError("Failed to delete site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
                 return false;
-            }
 
             _logger?.LogInformation("Successfully deleted site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
 
