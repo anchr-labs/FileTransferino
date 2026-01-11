@@ -4,6 +4,8 @@ using Avalonia.Input;
 using FileTransferino.App.Services;
 using FileTransferino.App.ViewModels;
 using FileTransferino.App.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FileTransferino.App;
 
@@ -67,10 +69,12 @@ public partial class MainWindow : Window
     private async void OpenSiteManager()
     {
         var app = Application.Current as App;
-        if (app?.SiteRepository == null || app?.CredentialStore == null)
+        if (app?.SiteRepository == null || app?.CredentialStore == null || app?.Services == null)
             return;
 
-        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore);
+        var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
+        
+        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, logger);
         var siteManager = new SiteManagerWindow(viewModel);
         await siteManager.ShowDialog(this);
     }

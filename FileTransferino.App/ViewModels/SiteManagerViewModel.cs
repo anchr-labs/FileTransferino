@@ -5,6 +5,7 @@ using FileTransferino.Core.Models;
 using FileTransferino.Data.Repositories;
 using FileTransferino.Infrastructure;
 using FileTransferino.Security;
+using Microsoft.Extensions.Logging;
 
 namespace FileTransferino.App.ViewModels;
 
@@ -15,6 +16,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 {
     private readonly ISiteRepository _siteRepository;
     private readonly ICredentialStore _credentialStore;
+    private readonly ILogger<SiteManagerViewModel>? _logger;
     
     private SiteProfile? _selectedSite;
     private string _name = string.Empty;
@@ -29,10 +31,11 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
     public ObservableCollection<SiteProfile> Sites { get; } = new();
 
-    public SiteManagerViewModel(ISiteRepository siteRepository, ICredentialStore credentialStore)
+    public SiteManagerViewModel(ISiteRepository siteRepository, ICredentialStore credentialStore, ILogger<SiteManagerViewModel>? logger = null)
     {
         _siteRepository = siteRepository;
         _credentialStore = credentialStore;
+        _logger = logger;
     }
 
     public SiteProfile? SelectedSite
@@ -157,11 +160,21 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
     public async Task LoadSitesAsync()
     {
-        Sites.Clear();
-        var sites = await _siteRepository.GetAllAsync();
-        foreach (var site in sites)
+        try
         {
-            Sites.Add(site);
+            _logger?.LogInformation("Loading sites from repository");
+            Sites.Clear();
+            var sites = await _siteRepository.GetAllAsync();
+            foreach (var site in sites)
+            {
+                Sites.Add(site);
+            }
+            _logger?.LogInformation("Loaded {SiteCount} sites", Sites.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load sites from repository");
+            throw;
         }
     }
 
@@ -210,7 +223,10 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     public async Task<bool> SaveSiteAsync()
     {
         if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Host))
+        {
+            _logger?.LogWarning("Cannot save site: Name or Host is empty");
             return false;
+        }
 
         try
         {
@@ -242,6 +258,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
                 // Save encrypted password
                 await _credentialStore.SaveAsync(site.CredentialKey, Password);
+                _logger?.LogInformation("Saved credentials for site {SiteName} with key {CredentialKey}", site.Name, site.CredentialKey);
             }
 
             if (isNew)
@@ -249,6 +266,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 await _siteRepository.InsertAsync(site);
                 Sites.Add(site);
                 SelectedSite = site;
+                _logger?.LogInformation("Created new site {SiteName} with ID {SiteId}", site.Name, site.Id);
             }
             else
             {
@@ -270,14 +288,17 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                     Sites[index] = site;
                     SelectedSite = site;
                 }
+                
+                _logger?.LogInformation("Updated site {SiteName} with ID {SiteId}", site.Name, site.Id);
             }
 
             Password = string.Empty;
             _isPasswordChanged = false;
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger?.LogError(ex, "Failed to save site {SiteName}", Name);
             return false;
         }
     }
@@ -288,15 +309,20 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     /// </summary>
     public async Task<bool> DeleteSiteByIdAsync(int id)
     {
+        _logger?.LogInformation("Starting site deletion for ID {SiteId}", id);
+        
         try
         {
             // Re-fetch persisted site to get up-to-date credential key
             var persisted = await _siteRepository.GetByIdAsync(id);
             if (persisted == null)
             {
-                System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: site id={id} not found in DB.");
+                _logger?.LogWarning("Site with ID {SiteId} not found in database", id);
                 return false;
             }
+
+            _logger?.LogDebug("Fetched site {SiteName} (ID: {SiteId}) with credential key: {CredentialKey}", 
+                persisted.Name, persisted.Id, persisted.CredentialKey ?? "(null)");
 
             // Delete credential if present
             if (!string.IsNullOrEmpty(persisted.CredentialKey))
@@ -304,10 +330,14 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 try
                 {
                     await _credentialStore.DeleteAsync(persisted.CredentialKey);
+                    _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}", 
+                        persisted.Name, persisted.CredentialKey);
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Credential deletion failed for {persisted.CredentialKey}: {ex}");
+                    _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}", 
+                        persisted.Name, persisted.CredentialKey);
+                    // Continue with site deletion even if credential deletion fails
                 }
             }
 
@@ -315,10 +345,11 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             var deleted = await _siteRepository.DeleteAsync(id);
             if (!deleted)
             {
-                System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync: failed to delete id={id} from DB.");
-                try { File.AppendAllText(logPath, $"failed to delete id={id} from DB\n"); } catch { }
+                _logger?.LogError("Failed to delete site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
                 return false;
             }
+
+            _logger?.LogInformation("Successfully deleted site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
 
             // Update UI collection on UI thread
             await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
@@ -361,21 +392,22 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                         DefaultLocalPath = string.Empty;
                         _isPasswordChanged = false;
                     }
+                    
+                    _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}", 
+                        SelectedSite?.Name ?? "(none)");
                 }
                 catch (Exception uiEx)
                 {
-                    System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync UI update failed: {uiEx}");
-                    try { File.AppendAllText(logPath, $"UI update failed: {uiEx}\n"); } catch { }
+                    _logger?.LogError(uiEx, "Failed to update UI after deleting site with ID {SiteId}", id);
                 }
             });
 
-            try { File.AppendAllText(logPath, $"DeleteSiteByIdAsync end id={id} success at {DateTime.UtcNow}\n"); } catch { }
+            _logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
             return true;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"DeleteSiteByIdAsync exception: {ex}");
-            try { File.AppendAllText(logPath, $"exception: {ex}\n"); } catch { }
+            _logger?.LogError(ex, "Unexpected error during site deletion for ID {SiteId}", id);
             return false;
         }
     }
