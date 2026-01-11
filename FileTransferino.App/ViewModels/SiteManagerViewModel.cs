@@ -348,6 +348,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             {
                 _logger?.LogError("Failed to delete site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
                 return false;
+            }
 
             _logger?.LogInformation("Successfully deleted site {SiteName} (ID: {SiteId}) from database", persisted.Name, id);
 
