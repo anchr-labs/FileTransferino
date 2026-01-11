@@ -356,52 +356,45 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             // Update UI collection on UI thread
             await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                try
+                var index = -1;
+                for (var i = 0; i < Sites.Count; i++)
                 {
-                    var index = -1;
-                    for (var i = 0; i < Sites.Count; i++)
+                    if (Sites[i].Id == id)
                     {
-                        if (Sites[i].Id == id)
-                        {
-                            index = i;
-                            break;
-                        }
+                        index = i;
+                        break;
                     }
-
-                    if (index >= 0 && index < Sites.Count)
-                        Sites.RemoveAt(index);
-
-                    // Choose new selection
-                    SiteProfile? newSelection = null;
-                    if (Sites.Count > 0)
-                    {
-                        var pickIndex = Math.Min(Math.Max(0, index), Sites.Count - 1);
-                        if (pickIndex >= 0 && pickIndex < Sites.Count)
-                            newSelection = Sites[pickIndex];
-                    }
-
-                    SelectedSite = newSelection;
-
-                    if (SelectedSite == null)
-                    {
-                        Name = "New Site";
-                        Protocol = "FTP";
-                        Host = string.Empty;
-                        Port = 21;
-                        Username = string.Empty;
-                        Password = string.Empty;
-                        DefaultRemotePath = "/";
-                        DefaultLocalPath = string.Empty;
-                        _isPasswordChanged = false;
-                    }
-
-                    _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}",
-                        SelectedSite?.Name ?? "(none)");
                 }
-                catch (Exception uiEx)
+
+                if (index >= 0 && index < Sites.Count)
+                    Sites.RemoveAt(index);
+
+                // Choose new selection
+                SiteProfile? newSelection = null;
+                if (Sites.Count > 0)
                 {
-                    _logger?.LogError(uiEx, "Failed to update UI after deleting site with ID {SiteId}", id);
+                    var pickIndex = Math.Min(Math.Max(0, index), Sites.Count - 1);
+                    if (pickIndex >= 0 && pickIndex < Sites.Count)
+                        newSelection = Sites[pickIndex];
                 }
+
+                SelectedSite = newSelection;
+
+                if (SelectedSite == null)
+                {
+                    Name = "New Site";
+                    Protocol = "FTP";
+                    Host = string.Empty;
+                    Port = 21;
+                    Username = string.Empty;
+                    Password = string.Empty;
+                    DefaultRemotePath = "/";
+                    DefaultLocalPath = string.Empty;
+                    _isPasswordChanged = false;
+                }
+
+                _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}",
+                    SelectedSite?.Name ?? "(none)");
             });
 
             _logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
