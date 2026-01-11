@@ -321,6 +321,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             {
                 _logger?.LogWarning("Site with ID {SiteId} not found in database", id);
                 return false;
+            }
 
             _logger?.LogDebug("Fetched site {SiteName} (ID: {SiteId}) with credential key: {CredentialKey}",
                 persisted.Name, persisted.Id, persisted.CredentialKey ?? "(null)");
@@ -334,7 +335,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                     _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
@@ -399,7 +400,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             _logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             _logger?.LogError(ex, "Unexpected error during site deletion for ID {SiteId}", id);
             return false;
