@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FileTransferino.App.ViewModels;
+using FileTransferino.Infrastructure;
 
 namespace FileTransferino.App.Views;
 
@@ -9,7 +10,7 @@ public partial class SiteManagerWindow : Window
     private readonly SiteManagerViewModel _viewModel;
 
     // Parameterless constructor for XAML loader
-    public SiteManagerWindow() : this(new SiteManagerViewModel(null!, null!)) { }
+    public SiteManagerWindow() : this(new SiteManagerViewModel(null!, null!, new AppPaths())) { }
 
     public SiteManagerWindow(SiteManagerViewModel viewModel)
     {
