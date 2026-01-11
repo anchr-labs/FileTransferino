@@ -29,6 +29,7 @@ public class App : Application
     public ISiteRepository? SiteRepository => _siteRepository;
     public ICredentialStore? CredentialStore => _credentialStore;
     public IServiceProvider? Services => _serviceProvider;
+    public AppPaths? AppPaths => _appPaths;
 
     public override void Initialize()
     {
@@ -119,10 +120,10 @@ public class App : Application
             // Register repositories in DI
             services.AddSingleton(_siteRepository);
             services.AddSingleton(_credentialStore);
-            
+
             // Build service provider
             _serviceProvider = services.BuildServiceProvider();
-            
+
             var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
             logger.LogInformation("Application initialized successfully");
 

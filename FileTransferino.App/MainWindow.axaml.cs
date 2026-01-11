@@ -69,12 +69,13 @@ public partial class MainWindow : Window
     private async void OpenSiteManager()
     {
         var app = Application.Current as App;
-        if (app?.SiteRepository == null || app?.CredentialStore == null || app?.Services == null)
+        if (app?.SiteRepository == null || app?.CredentialStore == null || app?.AppPaths == null || app?.Services == null)
             return;
 
         var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
-        
+
         var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, logger);
+        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths);
         var siteManager = new SiteManagerWindow(viewModel);
         await siteManager.ShowDialog(this);
     }

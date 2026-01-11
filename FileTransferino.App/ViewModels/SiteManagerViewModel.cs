@@ -17,7 +17,8 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     private readonly ISiteRepository _siteRepository;
     private readonly ICredentialStore _credentialStore;
     private readonly ILogger<SiteManagerViewModel>? _logger;
-    
+    private readonly string _errorLogPath;
+
     private SiteProfile? _selectedSite;
     private string _name = string.Empty;
     private string _protocol = "FTP";
@@ -31,11 +32,12 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
 
     public ObservableCollection<SiteProfile> Sites { get; } = new();
 
-    public SiteManagerViewModel(ISiteRepository siteRepository, ICredentialStore credentialStore, ILogger<SiteManagerViewModel>? logger = null)
+    public SiteManagerViewModel(ISiteRepository siteRepository, ICredentialStore credentialStore, AppPaths appPaths, ILogger<SiteManagerViewModel>? logger = null)
     {
         _siteRepository = siteRepository;
         _credentialStore = credentialStore;
         _logger = logger;
+        _errorLogPath = Path.Combine(appPaths.Logs, "errors.log");
     }
 
     public SiteProfile? SelectedSite
@@ -288,7 +290,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                     Sites[index] = site;
                     SelectedSite = site;
                 }
-                
+
                 _logger?.LogInformation("Updated site {SiteName} with ID {SiteId}", site.Name, site.Id);
             }
 
@@ -310,7 +312,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     public async Task<bool> DeleteSiteByIdAsync(int id)
     {
         _logger?.LogInformation("Starting site deletion for ID {SiteId}", id);
-        
+
         try
         {
             // Re-fetch persisted site to get up-to-date credential key
@@ -321,7 +323,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 return false;
             }
 
-            _logger?.LogDebug("Fetched site {SiteName} (ID: {SiteId}) with credential key: {CredentialKey}", 
+            _logger?.LogDebug("Fetched site {SiteName} (ID: {SiteId}) with credential key: {CredentialKey}",
                 persisted.Name, persisted.Id, persisted.CredentialKey ?? "(null)");
 
             // Delete credential if present
@@ -330,12 +332,12 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                 try
                 {
                     await _credentialStore.DeleteAsync(persisted.CredentialKey);
-                    _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}", 
+                    _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}", 
+                    _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
                     // Continue with site deletion even if credential deletion fails
                 }
@@ -392,8 +394,8 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                         DefaultLocalPath = string.Empty;
                         _isPasswordChanged = false;
                     }
-                    
-                    _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}", 
+
+                    _logger?.LogDebug("UI updated after site deletion, new selection: {SelectedSite}",
                         SelectedSite?.Name ?? "(none)");
                 }
                 catch (Exception uiEx)
@@ -413,7 +415,8 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     }
 
     // Backwards-compatible: delete using selected site reference
-    public Task<bool> DeleteSiteAsync() => DeleteSiteByIdAsync(SelectedSite?.Id ?? 0);
+    public Task<bool> DeleteSiteAsync()
+        => DeleteSiteByIdAsync(SelectedSite?.Id ?? 0);
 
     private void UpdateDefaultPort()
     {
@@ -429,7 +432,5 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
