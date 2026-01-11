@@ -1,0 +1,15 @@
+﻿{
+  "solution": {
+    "path": "FileTransferino.sln",
+    "projects": [
+      "FileTransferino.App\\FileTransferino.App.csproj",
+      "FileTransferino.Core\\FileTransferino.Core.csproj",
+      "FileTransferino.Data\\FileTransferino.Data.csproj",
+      "FileTransferino.Infrastructure\\FileTransferino.Infrastructure.csproj",
+      "FileTransferino.Security\\FileTransferino.Security.csproj",
+      "FileTransferino.UI\\FileTransferino.UI.csproj",
+      "FileTransferino.Mobile\\FileTransferino.Mobile\\FileTransferino.Mobile.csproj",
+      "FileTransferino.Mobile\\FileTransferino.Mobile.Desktop\\FileTransferino.Mobile.Desktop.csproj"
+    ]
+  }
+}

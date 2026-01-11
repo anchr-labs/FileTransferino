@@ -187,4 +187,23 @@ public partial class SiteManagerWindow : Window
     {
         Close();
     }
+
+    private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        // Allow dragging the window by the title bar
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeWindow(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void CloseWindowButton(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 }

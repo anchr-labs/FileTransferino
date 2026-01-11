@@ -234,4 +234,28 @@ public partial class CommandPaletteWindow : Window
             }
         }, DispatcherPriority.Background);
     }
+
+    private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Allow dragging the window by the title bar
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Restore theme if not confirmed
+        if (!_selectionConfirmed)
+        {
+            _viewModel.RestoreOriginalTheme();
+        }
+        Close();
+    }
 }

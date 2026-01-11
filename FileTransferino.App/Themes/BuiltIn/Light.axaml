@@ -25,4 +25,13 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="#107C10" />
     <SolidColorBrush x:Key="LabelBrush" Color="#1A1A1A" />
     
+    <!-- Fluent Theme Overrides for ListBox selection colors -->
+    <Color x:Key="SystemAccentColor">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark1">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark2">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark3">#0078D4</Color>
+    <Color x:Key="SystemAccentColorLight1">#005A9E</Color>
+    <Color x:Key="SystemAccentColorLight2">#005A9E</Color>
+    <Color x:Key="SystemAccentColorLight3">#005A9E</Color>
+    
 </ResourceDictionary>

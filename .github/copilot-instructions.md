@@ -16,19 +16,25 @@ These files serve as the source of truth for the project structure and should re
 
 ### 🔨 Build & Run Commands
 
-**Build the entire solution:**
+**Build desktop projects (recommended):**
+```powershell
+dotnet build FileTransferino.Desktop.slnf
+```
+
+**Build the entire solution (includes Mobile - requires SDKs):**
 ```powershell
 dotnet build FileTransferino.sln
 ```
+⚠️ Note: Building the full solution requires Android SDK API 36, iOS SDK, and WebAssembly tools. Use `FileTransferino.Desktop.slnf` for desktop development.
 
 **Clean build artifacts:**
 ```powershell
-dotnet clean FileTransferino.sln
+dotnet clean FileTransferino.Desktop.slnf
 ```
 
 **Rebuild from scratch:**
 ```powershell
-dotnet clean FileTransferino.sln; dotnet build FileTransferino.sln
+dotnet clean FileTransferino.Desktop.slnf; dotnet build FileTransferino.Desktop.slnf
 ```
 
 **Run the Avalonia app:**

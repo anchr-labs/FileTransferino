@@ -96,4 +96,30 @@ public partial class MainWindow : Window
             System.Diagnostics.Debug.WriteLine($"Error opening Site Manager: {ex}");
         }
     }
+
+    private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        // Allow dragging the window by the title bar
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void MaximizeWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized 
+            ? WindowState.Normal 
+            : WindowState.Maximized;
+    }
+
+    private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        Close();
+    }
 }

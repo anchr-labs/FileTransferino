@@ -7,52 +7,154 @@
         Title="FileTransferino"
         Width="900"
         Height="600"
-        Background="{DynamicResource BackgroundBrush}">
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="30"
+        SystemDecorations="None">
     
-    <Grid Margin="20">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
-            <TextBlock Text="Welcome to FileTransferino!"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"
-                       Foreground="{DynamicResource TextPrimaryBrush}" />
+    <!-- Main border that wraps everything -->
+    <Border Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            ClipToBounds="True">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" Color="#000000" Opacity="0.3" OffsetX="0" OffsetY="4"/>
+        </Border.Effect>
+        <DockPanel>
+            <!-- Custom Title Bar -->
+            <Border DockPanel.Dock="Top" 
+                    Height="30" 
+                    Background="{DynamicResource SurfaceBrush}"
+                    x:Name="TitleBar"
+                    PointerPressed="OnTitleBarPointerPressed">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <!-- Icon and Title -->
+                    <StackPanel Grid.Column="0" 
+                                Orientation="Horizontal" 
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="📁" 
+                                   FontSize="14" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
+                        <TextBlock Text="FileTransferino" 
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Window Controls -->
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal"
+                                Spacing="0">
+                        <Button Content="−" 
+                                Click="MinimizeWindow" 
+                                Width="45" 
+                                Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}"
+                                FontSize="16"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Padding="0">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                        <Button Content="□" 
+                                Click="MaximizeWindow" 
+                                Width="45" 
+                                Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}"
+                                FontSize="14"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Padding="0">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                        <Button Content="✕" 
+                                Click="CloseWindow" 
+                                Width="45" 
+                                Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}"
+                                FontSize="14"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Padding="0">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="#C42B1C" />
+                                </Style>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Foreground" Value="White" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
             
-            <TextBlock Text="Press Ctrl+K to open the command palette"
-                       FontSize="16"
-                       HorizontalAlignment="Center"
-                       Foreground="{DynamicResource TextSecondaryBrush}" />
-            
-            <Border Background="{DynamicResource SurfaceBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20"
-                    MaxWidth="500">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Available Commands:"
-                               FontWeight="SemiBold"
-                               FontSize="14"
+            <!-- Main Content Area -->
+            <Grid Margin="20">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+                    <TextBlock Text="Welcome to FileTransferino!"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextPrimaryBrush}" />
                     
-                    <TextBlock Text="• Ctrl+K - Open Command Palette"
+                    <TextBlock Text="Press Ctrl+K to open the command palette"
+                               FontSize="16"
+                               HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                     
-                    <TextBlock Text="• Search 'Light' to apply Light theme"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                    
-                    <TextBlock Text="• Search 'Dark' to apply Dark theme"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                    
-                    <TextBlock Text="• Search 'Ocean' to apply Ocean theme"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                    
-                    <TextBlock Text="• Search 'Nord' to apply Nord theme"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                    
-                    <TextBlock Text="• Search 'Monokai' to apply Monokai theme"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Border Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="20"
+                            MaxWidth="500">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Available Commands:"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" />
+                            
+                            <TextBlock Text="• Ctrl+K - Open Command Palette"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            
+                            <TextBlock Text="• Search 'Light' to apply Light theme"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            
+                            <TextBlock Text="• Search 'Dark' to apply Dark theme"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            
+                            <TextBlock Text="• Search 'Ocean' to apply Ocean theme"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            
+                            <TextBlock Text="• Search 'Nord' to apply Nord theme"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            
+                            <TextBlock Text="• Search 'Monokai' to apply Monokai theme"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </Border>
-        </StackPanel>
-    </Grid>
+            </Grid>
+        </DockPanel>
+    </Border>
 </Window>
