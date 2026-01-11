@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using FileTransferino.App.Services;
 using FileTransferino.App.ViewModels;
 using FileTransferino.App.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,11 +39,12 @@ public partial class MainWindow : Window
         // Pass themeService and current theme id for preview/restore support
         var viewModel = new CommandPaletteViewModel(themeService, themeService.CurrentThemeId);
         
-        // Register theme commands
+        // Register theme submenu as a single top-level entry
+        var themeCommands = new List<PaletteCommand>();
         foreach (var theme in themeService.GetThemes())
         {
             var themeId = theme.Id; // Capture for closure
-            viewModel.RegisterCommand(new PaletteCommand
+            themeCommands.Add(new PaletteCommand
             {
                 Name = theme.DisplayName,
                 Category = "Theme",
@@ -52,13 +52,21 @@ public partial class MainWindow : Window
                 Action = () => themeService.ApplyTheme(themeId)
             });
         }
+
+        // Top-level 'Themes' entry opens the submenu
+        viewModel.RegisterCommand(new PaletteCommand
+        {
+            Name = "Themes...",
+            Category = "Theme",
+            Action = () => viewModel.EnterSubmenu("Themes", themeCommands)
+        });
         
         // Register Site Manager command
         viewModel.RegisterCommand(new PaletteCommand
         {
             Name = "Open Site Manager",
             Category = "Sites",
-            Action = () => OpenSiteManager()
+            Action = OpenSiteManager
         });
         
         var paletteWindow = new CommandPaletteWindow(viewModel);
@@ -68,14 +76,24 @@ public partial class MainWindow : Window
 
     private async void OpenSiteManager()
     {
-        var app = Application.Current as App;
-        if (app?.SiteRepository == null || app?.CredentialStore == null || app?.AppPaths == null || app?.Services == null)
-            return;
+        try
+        {
+            var app = Application.Current as App;
+            if (app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null)
+                return;
 
-        var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
+            // Ensure the persisted/confirmed theme is applied before opening the Site Manager
+            app.ThemeService?.RestoreActiveTheme();
 
-        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
-        var siteManager = new SiteManagerWindow(viewModel);
-        await siteManager.ShowDialog(this);
+            var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
+
+            var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
+            var siteManager = new SiteManagerWindow(viewModel);
+            await siteManager.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error opening Site Manager: {ex}");
+        }
     }
 }

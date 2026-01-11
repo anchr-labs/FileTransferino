@@ -156,13 +156,17 @@ FileTransferino.Mobile
   - Buttons: New, Save, Delete, Close
   - Password handling: empty=keep existing, non-empty=update
   - Protocol auto-sets default ports (FTP/FTPS=21, SFTP=22)
-  - Fixed color scheme (not affected by theme changes)
+  - **Theme Inheritance**: Uses DynamicResource to match user's selected theme
   - Confirmation dialog for deletions
   - Robust error handling with logging
-- ✅ **Command Palette Integration** - "Sites: Open Site Manager" command
+- ✅ **Command Palette Integration** - "Themes..." submenu + "Open Site Manager" command
+  - Submenu navigation (Enter opens, Escape backs out)
+  - Theme preview in submenu without closing palette
+- ✅ **Adaptive Watermarks** - WatermarkBrush token per theme for placeholder text visibility
 - ✅ **Logging** - Structured logging with ILogger<T> and file logging
   - errors.log in {Root}/logs/ folder
   - Debug output for troubleshooting
+- ✅ **Code Quality** - Safe async void patterns with try-catch in event handlers
 
 ### Application Data Location
 ```
@@ -185,19 +189,20 @@ FileTransferino.Mobile
 
 ## Build Results
 
-**Last Build:** Successful ✅
+**Last Build:** Successful ✅ (January 11, 2026)
 
 ```
-Build succeeded in 1.8s
-- FileTransferino.Security: 0.1s ✅
-- FileTransferino.Infrastructure: 0.1s ✅
+Build succeeded in 4.2s
 - FileTransferino.Core: 0.1s ✅
+- FileTransferino.UI: 0.1s ✅
+- FileTransferino.Infrastructure: 0.1s ✅
 - FileTransferino.Data: 0.1s ✅
-- FileTransferino.App: 1.1s ✅
+- FileTransferino.Security: 0.2s ✅
+- FileTransferino.App: 3.1s ✅
 ```
 
 **Errors:** 0  
-**Warnings:** 1 (XAML loader warning - non-blocking)
+**Warnings:** 0
 
 ---
 

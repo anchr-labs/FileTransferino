@@ -15,35 +15,38 @@ public sealed class PaletteCommand
     public required string Name { get; init; }
     public required string Category { get; init; }
     public required Action Action { get; init; }
-    // Optional id (used for themes)
     public string? Id { get; init; }
 }
 
 /// <summary>
 /// ViewModel for the command palette.
 /// </summary>
-public sealed class CommandPaletteViewModel : INotifyPropertyChanged
+/// <param name="themeService">Theme service for preview functionality (null disables previews)</param>
+/// <param name="originalThemeId">Theme ID to restore on cancel (null skips restoration)</param>
+/// <param name="debounceMilliseconds">Debounce delay for hover previews</param>
+public sealed class CommandPaletteViewModel(
+    IThemeService? themeService = null,
+    string? originalThemeId = null,
+    int debounceMilliseconds = 50) : INotifyPropertyChanged
 {
     private string _searchText = string.Empty;
     private PaletteCommand? _selectedCommand;
-    private readonly List<PaletteCommand> _allCommands = new();
-
-    public ObservableCollection<PaletteCommand> FilteredCommands { get; } = new();
-
-    // Theme preview support
-    private readonly IThemeService? _themeService;
-    private readonly string? _originalThemeId;
     private CancellationTokenSource? _previewCts;
-    private readonly int _debounceMs = 50; // faster preview response
 
-    public CommandPaletteViewModel() { }
+    // Root command list (top-level)
+    private readonly List<PaletteCommand> _rootCommands = [];
 
-    public CommandPaletteViewModel(IThemeService themeService, string? originalThemeId, int debounceMilliseconds = 50)
-    {
-        _themeService = themeService;
-        _originalThemeId = originalThemeId;
-        _debounceMs = debounceMilliseconds;
-    }
+    // Submenu state
+    private List<PaletteCommand>? _submenuCommands;
+    private bool _inSubmenu;
+    private string? _submenuTitle;
+
+    // Active command list (points to root or submenu)
+    private List<PaletteCommand> ActiveCommands => _inSubmenu && _submenuCommands != null 
+        ? _submenuCommands 
+        : _rootCommands;
+
+    public ObservableCollection<PaletteCommand> FilteredCommands { get; } = [];
 
     public string SearchText
     {
@@ -59,6 +62,8 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
         }
     }
 
+    private string? _lastVisitedThemeId;
+
     public PaletteCommand? SelectedCommand
     {
         get => _selectedCommand;
@@ -67,27 +72,83 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
             if (_selectedCommand != value)
             {
                 _selectedCommand = value;
+                // Track last visited theme id so we can restore selection when re-opening submenus
+                if (_selectedCommand?.Id != null)
+                {
+                    _lastVisitedThemeId = _selectedCommand.Id;
+                    // persist across sessions if themeService supports it
+                    try { themeService?.LastVisitedThemeId = _selectedCommand.Id; } catch { }
+                }
                 OnPropertyChanged();
             }
         }
     }
 
+    public bool InSubmenu => _inSubmenu;
+    public string? SubmenuTitle => _submenuTitle;
+
     public void RegisterCommand(PaletteCommand command)
     {
-        _allCommands.Add(command);
+        _rootCommands.Add(command);
         FilterCommands();
     }
 
     public void RegisterCommands(IEnumerable<PaletteCommand> commands)
     {
-        _allCommands.AddRange(commands);
+        _rootCommands.AddRange(commands);
         FilterCommands();
     }
 
     public void ClearCommands()
     {
-        _allCommands.Clear();
+        _rootCommands.Clear();
+        _submenuCommands = null;
+        _inSubmenu = false;
         FilteredCommands.Clear();
+    }
+
+    /// <summary>
+    /// Enter a submenu (replace the visible commands). Call ExitSubmenu() to return.
+    /// </summary>
+    public void EnterSubmenu(string title, IEnumerable<PaletteCommand> commands)
+    {
+        _submenuTitle = title;
+        _submenuCommands = commands.ToList();
+        _inSubmenu = true;
+        FilterCommands();
+
+        // After filling FilteredCommands, attempt to pre-select the best candidate:
+        // 1. previously visited theme (_lastVisitedThemeId)
+        // 2. current applied theme (from themeService)
+        // 3. fallback to first item (already handled by FilterCommands)
+        var desiredId = themeService?.LastVisitedThemeId ?? _lastVisitedThemeId;
+        if (string.IsNullOrEmpty(desiredId) && themeService != null)
+        {
+            desiredId = themeService.CurrentThemeId;
+        }
+
+        if (!string.IsNullOrEmpty(desiredId))
+        {
+            var match = FilteredCommands.FirstOrDefault(c => c.Id == desiredId);
+            if (match != null)
+            {
+                SelectedCommand = match;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Exit current submenu and restore top-level commands.
+    /// </summary>
+    public void ExitSubmenu()
+    {
+        if (!_inSubmenu)
+            return;
+
+        _submenuCommands = null;
+        _submenuTitle = null;
+        _inSubmenu = false;
+        FilterCommands();
     }
 
     private void FilterCommands()
@@ -95,90 +156,73 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
         FilteredCommands.Clear();
 
         var query = _searchText.Trim().ToLowerInvariant();
-        
+        var source = ActiveCommands;
+
+        if (source.Count == 0)
+            return;
+
         var filtered = string.IsNullOrWhiteSpace(query)
-            ? _allCommands
-            : _allCommands.Where(c => 
-                c.Name.ToLowerInvariant().Contains(query) || 
-                c.Category.ToLowerInvariant().Contains(query));
+            ? source
+            : source.Where(c => c.
+                                    Name.ToLowerInvariant().Contains(query) ||
+                                c.Category.ToLowerInvariant().Contains(query));
 
         foreach (var command in filtered)
-        {
             FilteredCommands.Add(command);
-        }
 
-        // Auto-select first command
         SelectedCommand = FilteredCommands.FirstOrDefault();
     }
 
     public void ExecuteSelectedCommand()
     {
-        // Cancel any pending preview to avoid race
         CancelPendingPreview();
         SelectedCommand?.Action.Invoke();
     }
 
     /// <summary>
-    /// Preview a theme (or other command) immediately. Used for selection changes.
+    /// Preview a theme immediately. Used for selection changes.
     /// </summary>
     public void PreviewCommand(PaletteCommand? command)
     {
-        if (command == null)
+        if (command == null || themeService == null || string.IsNullOrEmpty(command.Id))
             return;
 
-        // Only preview if it's a theme command (has Id and ThemeService)
-        // Do NOT execute non-theme commands on selection change
-        if (_themeService != null && !string.IsNullOrEmpty(command.Id))
-        {
-            CancelPendingPreview();
-            // Apply immediately on UI thread
-            Dispatcher.UIThread.Post(() => _themeService.ApplyTheme(command.Id!));
-        }
-        
-        // Non-theme commands should NOT be executed on selection change
-        // They should only execute on Enter or Click
+        CancelPendingPreview();
+        Dispatcher.UIThread.Post(() => themeService.PreviewTheme(command.Id!));
     }
 
     /// <summary>
-    /// Preview a theme with debounce. Used for hover preview to avoid spamming.
+    /// Preview a theme with debounce. Used for hover preview.
     /// </summary>
     public void PreviewCommandDebounced(PaletteCommand? command)
     {
-        if (command == null)
+        if (command == null || themeService == null || string.IsNullOrEmpty(command.Id))
             return;
 
-        // If we have a theme service and an id, use debounced preview
-        if (_themeService != null && !string.IsNullOrEmpty(command.Id))
-        {
-            DebouncedApply(command.Id!);
-            return;
-        }
+        DebouncedApplyPreview(command.Id!);
     }
 
-    private void DebouncedApply(string themeId)
+    private void DebouncedApplyPreview(string themeId)
     {
         CancelPendingPreview();
         _previewCts = new CancellationTokenSource();
         var ct = _previewCts.Token;
 
-        // Fire-and-forget async debounce without blocking UI
         _ = Task.Run(async () =>
         {
             try
             {
-                await Task.Delay(_debounceMs, ct);
+                await Task.Delay(debounceMilliseconds, ct);
                 if (ct.IsCancellationRequested) return;
 
-                // Apply on UI thread via theme service (ApplyTheme may interact with Application resources)
-                await Dispatcher.UIThread.InvokeAsync(() => _themeService?.ApplyTheme(themeId));
+                await Dispatcher.UIThread.InvokeAsync(() => themeService?.PreviewTheme(themeId));
             }
             catch (OperationCanceledException)
             {
-                // Expected when preview is cancelled, no logging needed
+                // Expected when preview is cancelled
             }
             catch (Exception ex)
             {
-                // Log unexpected exceptions during theme preview with full details
                 Debug.WriteLine($"Error during theme preview (themeId: {themeId}): {ex}");
             }
         }, ct);
@@ -192,7 +236,10 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
             _previewCts?.Dispose();
             _previewCts = null;
         }
-        catch { }
+        catch
+        {
+            // Ignore disposal errors
+        }
     }
 
     /// <summary>
@@ -201,9 +248,9 @@ public sealed class CommandPaletteViewModel : INotifyPropertyChanged
     public void RestoreOriginalTheme()
     {
         CancelPendingPreview();
-        if (_themeService != null && !string.IsNullOrEmpty(_originalThemeId))
+        if (themeService != null && !string.IsNullOrEmpty(originalThemeId))
         {
-            _themeService.ApplyTheme(_originalThemeId!);
+            themeService.ApplyTheme(originalThemeId);
         }
     }
 

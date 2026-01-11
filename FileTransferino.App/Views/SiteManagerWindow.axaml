@@ -7,89 +7,81 @@
         Width="800"
         Height="600"
         WindowStartupLocation="CenterOwner"
-        Background="#2E3440">
+        Background="{DynamicResource BackgroundBrush}">
 
     <Window.Styles>
-        <!-- Fixed color scheme matching Command Palette -->
+        <!-- Theme-driven color scheme: use the application's resource brushes so the window inherits the active theme -->
         <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#ECEFF4" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}" />
         </Style>
-        
+
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#5E81AC" />
-            <Setter Property="CaretBrush" Value="#FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
         </Style>
-        
-        <!-- Ensure TextBox background stays consistent -->
-        <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
-        </Style>
-        
+
         <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="BorderBrush" Value="#81A1C1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
-        
-        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
-        </Style>
-        
+
         <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
-            <Setter Property="Foreground" Value="#A0A8B8" />
+            <Setter Property="Foreground" Value="{DynamicResource WatermarkBrush}" />
         </Style>
-        
+
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#5E81AC" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="NumericUpDown">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#5E81AC" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="ListBox">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
         </Style>
-        
+
         <Style Selector="ListBoxItem">
-            <Setter Property="Foreground" Value="#ECEFF4" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderThickness" Value="3,0,0,0" />
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
-        
+
         <Style Selector="ListBoxItem:selected">
-            <Setter Property="Background" Value="#3B4252" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#81A1C1" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
         </Style>
-        
+
         <Style Selector="ListBoxItem:pointerover">
-            <Setter Property="Background" Value="#353B45" />
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
-        
+
         <Style Selector="Button">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#5E81AC" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="#4C566A" />
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
-        
+
         <Style Selector="Border.card">
-            <Setter Property="Background" Value="#3B4252" />
-            <Setter Property="BorderBrush" Value="#4C566A" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="TextBlock.secondary">
-            <Setter Property="Foreground" Value="#A0A8B8" />
+            <Setter Property="Foreground" Value="{DynamicResource LabelBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}" />
         </Style>
     </Window.Styles>
 
@@ -143,12 +135,12 @@
                     <StackPanel Spacing="16">
                         <TextBlock Text="Site Configuration"
                                    FontWeight="SemiBold"
-                                   FontSize="16" />
+                                   FontSize="{DynamicResource FontSizeLarge}" />
 
                         <!-- Name -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Site Name *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Name}" 
                                      Watermark="My FTP Server" />
                         </StackPanel>
@@ -156,7 +148,7 @@
                         <!-- Protocol -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Protocol *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <ComboBox SelectedItem="{Binding Protocol}"
                                       HorizontalAlignment="Stretch">
                                 <ComboBoxItem Content="FTP" />
@@ -168,7 +160,7 @@
                         <!-- Host -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Host *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Host}"
                                      Watermark="ftp.example.com" />
                         </StackPanel>
@@ -176,7 +168,7 @@
                         <!-- Port -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Port *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <NumericUpDown Value="{Binding Port}"
                                           Minimum="1"
                                           Maximum="65535"
@@ -187,7 +179,7 @@
                         <!-- Username -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Username"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Username}"
                                      Watermark="username" />
                         </StackPanel>
@@ -195,20 +187,20 @@
                         <!-- Password -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Password"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Password}"
                                      Watermark="Leave empty to keep existing"
                                      PasswordChar="•" />
                             <TextBlock Text="Tip: Leave empty to keep current password when editing"
                                        FontSize="11"
                                        FontStyle="Italic"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                         </StackPanel>
 
                         <!-- Default Remote Path -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Default Remote Path"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding DefaultRemotePath}"
                                      Watermark="/" />
                         </StackPanel>
@@ -216,7 +208,7 @@
                         <!-- Default Local Path -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Default Local Path"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding DefaultLocalPath}"
                                      Watermark="~/Downloads" />
                         </StackPanel>

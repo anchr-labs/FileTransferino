@@ -48,27 +48,34 @@ public partial class SiteManagerWindow : Window
 
     private async void OnSaveClick(object? sender, RoutedEventArgs e)
     {
-        var success = await _viewModel.SaveSiteAsync();
-        
-        if (!success)
+        try
         {
-            // Show error message
-            var messageBox = new Window
-            {
-                Title = "Error",
-                Width = 300,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new TextBlock
-                {
-                    Text = "Failed to save site. Please ensure Name and Host are filled.",
-                    TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-                    Margin = new Avalonia.Thickness(20),
-                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-                }
-            };
+            var success = await _viewModel.SaveSiteAsync();
             
-            await messageBox.ShowDialog(this);
+            if (!success)
+            {
+                // Show error message
+                var messageBox = new Window
+                {
+                    Title = "Error",
+                    Width = 300,
+                    Height = 150,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    Content = new TextBlock
+                    {
+                        Text = "Failed to save site. Please ensure Name and Host are filled.",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                        Margin = new Avalonia.Thickness(20),
+                        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                    }
+                };
+                
+                await messageBox.ShowDialog(this);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving site: {ex}");
         }
     }
 

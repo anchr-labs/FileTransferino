@@ -63,6 +63,22 @@ public partial class CommandPaletteWindow : Window
         // Wire up list interactions
         if (_list != null)
         {
+            // Ensure we scroll to the selected item when the VM updates selection
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(_viewModel.SelectedCommand))
+                {
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        var sel = _viewModel.SelectedCommand;
+                        if (sel != null)
+                        {
+                            _list.ScrollIntoView(sel);
+                        }
+                    }, DispatcherPriority.Background);
+                }
+            };
+
             // Selection changes should preview the theme in main window
             _list.SelectionChanged += (_, _) =>
             {
@@ -152,14 +168,36 @@ public partial class CommandPaletteWindow : Window
     {
         if (e.Key == Key.Escape)
         {
+            if (_viewModel.InSubmenu)
+            {
+                // exit submenu and keep palette open
+                _viewModel.ExitSubmenu();
+                e.Handled = true;
+                return;
+            }
+
             // Restore theme to original state if possible
             _viewModel.RestoreOriginalTheme();
             Close();
         }
         else if (e.Key == Key.Enter)
         {
-            _selectionConfirmed = true;
+            var selectedCommand = _viewModel.SelectedCommand;
+
+            // Execute the selected command
             _viewModel.ExecuteSelectedCommand();
+
+            // If the executed command opened a submenu (e.g. 'Themes...') and it did not
+            // represent an actionable theme (no Id), keep the palette open. Otherwise
+            // treat it as a confirmation and close.
+            if (_viewModel.InSubmenu && string.IsNullOrEmpty(selectedCommand?.Id))
+            {
+                e.Handled = true; // remain in submenu
+                return;
+            }
+
+            // Confirm selection and close
+            _selectionConfirmed = true;
             Close();
         }
     }
@@ -168,7 +206,7 @@ public partial class CommandPaletteWindow : Window
     {
         // Only handle left-button presses
         var props = e.GetCurrentPoint(this).Properties;
-        if (!props.IsLeftButtonPressed) 
+        if (!props.IsLeftButtonPressed)
             return;
 
         // Ignore clicks that originate from scroll bar controls
@@ -182,10 +220,17 @@ public partial class CommandPaletteWindow : Window
             var cmd = _viewModel.SelectedCommand;
             if (cmd != null)
             {
-                // Mark as confirmed so theme isn't restored on close
-                _selectionConfirmed = true;
                 // Cancel pending previews and execute immediately
                 _viewModel.ExecuteSelectedCommand();
+
+                // If this was a theme command (has Id) or it's a direct action, close the palette
+                // If the action opened a submenu (like clicking 'Themes...') and had no Id,
+                // keep the palette open so the user can pick inside it.
+                if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
+                {
+                    _selectionConfirmed = true;
+                    Close();
+                }
             }
         }, DispatcherPriority.Background);
     }

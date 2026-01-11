@@ -1,4 +1,4 @@
-﻿﻿﻿# FileTransferino Solution
+﻿﻿﻿﻿﻿# FileTransferino Solution
 
 A .NET 10 solution for a File Transfer application with clean architecture.
 
@@ -107,19 +107,22 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 
 ### Command Palette (Slice 1)
 - **Keyboard Shortcut**: Press `Ctrl+K` to open
-- **Quick Theme Switching**: Search and apply themes instantly
+- **Submenu Navigation**: Themes grouped under "Themes..." entry
+- **Theme Preview**: Arrow keys preview themes in real-time
+- **Escape Behavior**: Backs out of submenu, or closes palette at top level
 - **Fuzzy Search**: Filter commands by name or category
 - **Keyboard Navigation**: Use arrow keys and Enter to execute
-- **Theme Preview**: Arrow keys preview themes in real-time
 - **Single-Click Apply**: Click a theme to apply it immediately
+- **Adaptive Watermarks**: Placeholder text adapts to each theme for visibility
 
 ### Site Manager (Slice 2)
+- **Theme Inheritance**: Automatically matches the user's selected theme
 - **Secure Credential Storage**: Passwords encrypted with Windows DPAPI
 - **FTP/FTPS/SFTP Support**: Configure connection profiles for all protocols
 - **Profile Management**: Create, edit, and delete site profiles
 - **Database Persistence**: Site profiles stored in SQLite (002_sites.sql migration)
 - **Encrypted Secrets**: Credentials stored in `{Root}/secrets/` folder (never in database)
-- **Command Palette Integration**: Open with "Sites: Open Site Manager" command
+- **Command Palette Integration**: Open with "Open Site Manager" command
 - **CRUD Operations**: 
   - Add new sites (New button)
   - Edit existing sites (select from list)

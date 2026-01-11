@@ -11,6 +11,11 @@ public sealed class AppSettings
     public string ActiveThemeId { get; set; } = "Light";
 
     /// <summary>
+    /// The last visited theme id inside the command palette submenu. Optional.
+    /// </summary>
+    public string? LastVisitedThemeId { get; set; }
+
+    /// <summary>
     /// UTC timestamp of the first application run.
     /// </summary>
     public DateTime FirstRunUtc { get; set; }
@@ -29,6 +34,7 @@ public sealed class AppSettings
         return new AppSettings
         {
             ActiveThemeId = "Light",
+            LastVisitedThemeId = null,
             FirstRunUtc = now,
             LastRunUtc = now
         };

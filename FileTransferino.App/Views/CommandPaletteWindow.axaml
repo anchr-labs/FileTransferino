@@ -9,43 +9,44 @@
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         Topmost="True"
-        Background="#2E3440"
-        BorderBrush="#4C566A"
+        Background="{DynamicResource BackgroundBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="1">
 
     <Window.Styles>
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="Foreground" Value="#ECEFF4" />
-            <Setter Property="BorderBrush" Value="#5E81AC" />
-            <Setter Property="CaretBrush" Value="#FFFFFF" />
-            <Setter Property="SelectionBrush" Value="#5E81AC" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}" />
         </Style>
         
         <!-- Ensure TextBox background stays consistent -->
         <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
         </Style>
         
         <!-- Focused TextBox gets a subtle glow -->
         <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
-            <Setter Property="BorderBrush" Value="#81A1C1" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,2" />
         </Style>
         
         <!-- Pointer over state -->
         <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="#434C5E" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
         </Style>
         
         <!-- Watermark text -->
         <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
-            <Setter Property="Foreground" Value="#A0A8B8" />
+            <Setter Property="Foreground" Value="{DynamicResource WatermarkBrush}" />
         </Style>
         
         <Style Selector="ListBox">
-            <Setter Property="Background" Value="#2E3440" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
         
@@ -58,24 +59,24 @@
         
         <!-- Selected item: subtle highlight with left border -->
         <Style Selector="ListBoxItem:selected">
-            <Setter Property="Background" Value="#3B4252" />
-            <Setter Property="BorderBrush" Value="#81A1C1" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
         </Style>
         
         <!-- Hover: subtle background -->
         <Style Selector="ListBoxItem:pointerover">
-            <Setter Property="Background" Value="#353B45" />
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
         
         <Style Selector="TextBlock.commandName">
-            <Setter Property="Foreground" Value="#E8E8E8" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}" />
             <Setter Property="FontWeight" Value="Medium" />
         </Style>
         
         <Style Selector="TextBlock.commandCategory">
-            <Setter Property="Foreground" Value="#9E9E9E" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}" />
         </Style>
     </Window.Styles>
 

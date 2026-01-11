@@ -23,5 +23,6 @@
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#8FBCBB" />
     <SolidColorBrush x:Key="ErrorBrush" Color="#BF616A" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#A3BE8C" />
+    <SolidColorBrush x:Key="LabelBrush" Color="#ECECEC" />
     
 </ResourceDictionary>
