@@ -10,8 +10,8 @@ CREATE TABLE Sites (
     DefaultRemotePath TEXT NULL,
     DefaultLocalPath TEXT NULL,
     CredentialKey TEXT NULL,
-    CreatedUtc TEXT NOT NULL DEFAULT (datetime('now')),
-    UpdatedUtc TEXT NOT NULL DEFAULT (datetime('now'))
+    CreatedUtc INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+    UpdatedUtc INTEGER NOT NULL DEFAULT (strftime('%s','now'))
 );
 
 -- Index for efficient lookup by connection details
