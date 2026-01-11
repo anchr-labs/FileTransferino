@@ -335,7 +335,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
                     _logger?.LogInformation("Deleted credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     _logger?.LogError(ex, "Failed to delete credentials for site {SiteName} with key {CredentialKey}",
                         persisted.Name, persisted.CredentialKey);
@@ -400,7 +400,7 @@ public sealed class SiteManagerViewModel : INotifyPropertyChanged
             _logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _logger?.LogError(ex, "Unexpected error during site deletion for ID {SiteId}", id);
             return false;
