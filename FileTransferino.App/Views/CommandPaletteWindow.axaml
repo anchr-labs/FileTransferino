@@ -1,0 +1,86 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FileTransferino.App.ViewModels"
+        x:Class="FileTransferino.App.Views.CommandPaletteWindow"
+        x:DataType="vm:CommandPaletteViewModel"
+        Title="Command Palette"
+        Width="600"
+        Height="400"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Topmost="True"
+        Background="#2D2D30"
+        BorderBrush="#3F3F46"
+        BorderThickness="1">
+
+    <Window.Styles>
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#1E1E1E" />
+            <Setter Property="Foreground" Value="#CCCCCC" />
+            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="CaretBrush" Value="#CCCCCC" />
+        </Style>
+        
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="#1E1E1E" />
+            <Setter Property="BorderBrush" Value="#3F3F46" />
+        </Style>
+        
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        
+        <!-- Selected item: just a left border indicator -->
+        <Style Selector="ListBoxItem:selected">
+            <Setter Property="Background" Value="#37373D" />
+            <Setter Property="BorderBrush" Value="#007ACC" />
+        </Style>
+        
+        <!-- Hover: subtle background -->
+        <Style Selector="ListBoxItem:pointerover">
+            <Setter Property="Background" Value="#2A2D2E" />
+        </Style>
+        
+        <Style Selector="TextBlock.commandName">
+            <Setter Property="Foreground" Value="#CCCCCC" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+        
+        <Style Selector="TextBlock.commandCategory">
+            <Setter Property="Foreground" Value="#808080" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Search Box -->
+        <TextBox DockPanel.Dock="Top"
+                 Text="{Binding SearchText}"
+                 Watermark="Type to search commands..."
+                 Padding="12"
+                 FontSize="16"
+                 BorderThickness="0,0,0,1"
+                 x:Name="SearchBox" />
+
+        <!-- Command List -->
+        <ListBox x:Name="CommandList"
+                 ItemsSource="{Binding FilteredCommands}"
+                 SelectedItem="{Binding SelectedCommand}"
+                 BorderThickness="0"
+                 Margin="0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Name}" 
+                                   Classes="commandName" />
+                        <TextBlock Text="{Binding Category}" 
+                                   Classes="commandCategory" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

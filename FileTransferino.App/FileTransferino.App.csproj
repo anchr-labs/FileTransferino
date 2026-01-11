@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileTransferino.UI\FileTransferino.UI.csproj" />
+    <ProjectReference Include="..\FileTransferino.Core\FileTransferino.Core.csproj" />
+    <ProjectReference Include="..\FileTransferino.Data\FileTransferino.Data.csproj" />
+    <ProjectReference Include="..\FileTransferino.Infrastructure\FileTransferino.Infrastructure.csproj" />
+    <ProjectReference Include="..\FileTransferino.Security\FileTransferino.Security.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
+  </ItemGroup>
+</Project>
