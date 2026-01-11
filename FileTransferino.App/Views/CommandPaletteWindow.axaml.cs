@@ -13,17 +13,8 @@ public partial class CommandPaletteWindow : Window
     private TextBox? _searchBox;
     private bool _selectionConfirmed;
 
-    /// <summary>
-    /// Parameterless constructor required by the XAML loader and design-time tools.
-    /// </summary>
-    /// <remarks>
-    /// This overload creates a <see cref="CommandPaletteViewModel"/> without the theme service,
-    /// so theme preview functionality will not work if this constructor is used at runtime.
-    /// Application code should prefer the constructor that accepts a preconfigured
-    /// <see cref="CommandPaletteViewModel"/> with the required services.
-    /// </remarks>
+    /// <summary>Parameterless constructor for XAML designer. Theme preview will not work at runtime without ThemeService.</summary>
     public CommandPaletteWindow() : this(new CommandPaletteViewModel()) { }
-
     public CommandPaletteWindow(CommandPaletteViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
