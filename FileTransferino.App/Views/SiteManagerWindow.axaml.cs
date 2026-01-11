@@ -9,6 +9,9 @@ public partial class SiteManagerWindow : Window
 {
     private readonly SiteManagerViewModel _viewModel;
 
+    // Parameterless constructor for XAML loader
+    public SiteManagerWindow() : this(new SiteManagerViewModel(null!, null!, new AppPaths())) { }
+
     public SiteManagerWindow(SiteManagerViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));

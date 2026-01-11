@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.Versioning;
+using System.Security.Cryptography;
 using System.Text;
 using FileTransferino.Infrastructure;
 
@@ -8,6 +9,7 @@ namespace FileTransferino.Security;
 /// Credential store implementation using Windows DPAPI for encryption.
 /// Stores encrypted credentials as files in {AppPaths.Root}/secrets/
 /// </summary>
+[SupportedOSPlatform("windows")]
 public sealed class WindowsDpapiCredentialStore : ICredentialStore
 {
     private readonly string _secretsPath;
@@ -20,20 +22,20 @@ public sealed class WindowsDpapiCredentialStore : ICredentialStore
 
     private void EnsureSecretsDirectoryExists()
     {
-        if (!Directory.Exists(_secretsPath))
-        {
-            Directory.CreateDirectory(_secretsPath);
+        if (Directory.Exists(_secretsPath))
+            return;
+
+        Directory.CreateDirectory(_secretsPath);
             
-            // Set directory attributes to hidden for security
-            try
-            {
-                var dirInfo = new DirectoryInfo(_secretsPath);
-                dirInfo.Attributes |= FileAttributes.Hidden;
-            }
-            catch
-            {
-                // Ignore if we can't set hidden attribute
-            }
+        // Set directory attributes to hidden for security
+        try
+        {
+            var dirInfo = new DirectoryInfo(_secretsPath);
+            dirInfo.Attributes |= FileAttributes.Hidden;
+        }
+        catch
+        {
+            // Ignore if we can't set hidden attribute
         }
     }
 
@@ -112,7 +114,7 @@ public sealed class WindowsDpapiCredentialStore : ICredentialStore
             return Task.FromResult(false);
 
         var filePath = GetFilePath(key);
-        
+
         if (!File.Exists(filePath))
             return Task.FromResult(false);
 
