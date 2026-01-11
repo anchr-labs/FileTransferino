@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="using:FileTransferino.App.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FileTransferino.App.MainWindow"
         Title="FileTransferino"
@@ -23,23 +24,25 @@
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Color="#000000" Opacity="0.3" OffsetX="0" OffsetY="4"/>
         </Border.Effect>
-        <DockPanel>
-            <!-- Custom Title Bar -->
-            <Border DockPanel.Dock="Top" 
-                    Height="30" 
-                    Background="{DynamicResource SurfaceBrush}"
-                    x:Name="TitleBar"
-                    PointerPressed="OnTitleBarPointerPressed">
-                <Grid ColumnDefinitions="Auto,*,Auto">
+        <Grid>
+            <!-- Main content layer -->
+            <DockPanel>
+                <!-- Custom Title Bar -->
+                <Border DockPanel.Dock="Top" 
+                        Height="30" 
+                        Background="{DynamicResource SurfaceBrush}"
+                        x:Name="TitleBar"
+                        PointerPressed="OnTitleBarPointerPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
                     <!-- Icon and Title -->
                     <StackPanel Grid.Column="0" 
                                 Orientation="Horizontal" 
                                 Margin="12,0,0,0"
                                 VerticalAlignment="Center">
-                        <TextBlock Text="📁" 
-                                   FontSize="14" 
+                        <TextBlock Text="⚡" 
+                                   FontSize="16" 
                                    VerticalAlignment="Center"
-                                   Margin="0,0,6,0"/>
+                                   Margin="0,0,8,0"/>
                         <TextBlock Text="FileTransferino" 
                                    FontSize="12"
                                    Foreground="{DynamicResource TextSecondaryBrush}"
@@ -108,53 +111,105 @@
                 </Grid>
             </Border>
             
-            <!-- Main Content Area -->
-            <Grid Margin="20">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
-                    <TextBlock Text="Welcome to FileTransferino!"
-                               FontSize="32"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource TextPrimaryBrush}" />
+            <!-- Main Content Area: Embedded Site Manager -->
+            <views:SiteManagerView x:Name="SiteManagerView" />
+        </DockPanel>
+        
+        <!-- Welcome Banner Overlay (top layer, covers everything) -->
+        <Border x:Name="WelcomeOverlay"
+                Background="#EE000000"
+                IsVisible="False"
+                PointerPressed="OnWelcomeOverlayPointerPressed">
+            <Border Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="2"
+                    CornerRadius="12"
+                    Padding="32,24"
+                    MaxWidth="500"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    BoxShadow="0 8 32 8 #40000000">
+                <StackPanel Spacing="16">
+                    <!-- Header -->
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Center"
+                                Spacing="10">
+                        <TextBlock Text="⚡" 
+                                   FontSize="32" 
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="FileTransferino"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" />
+                    </StackPanel>
                     
-                    <TextBlock Text="Press Ctrl+K to open the command palette"
-                               FontSize="16"
+                    <TextBlock Text="FTP/SFTP File Transfer Client"
+                               FontSize="13"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                     
-                    <Border Background="{DynamicResource SurfaceBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="20"
-                            MaxWidth="500">
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="Available Commands:"
-                                       FontWeight="SemiBold"
-                                       FontSize="14"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" />
-                            
-                            <TextBlock Text="• Ctrl+K - Open Command Palette"
+                    <!-- Separator -->
+                    <Border Height="1" 
+                            Background="{DynamicResource BorderBrush}"
+                            Margin="0,8,0,8" />
+                    
+                    <!-- Shortcuts -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Quick Tips:"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" 
+                              HorizontalAlignment="Center">
+                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                                       Text="Ctrl+K" 
+                                       FontWeight="Bold" 
+                                       FontFamily="Consolas"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,0,12,0" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" 
+                                       Text="Command Palette"
                                        Foreground="{DynamicResource TextSecondaryBrush}" />
                             
-                            <TextBlock Text="• Search 'Light' to apply Light theme"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                                       Text="Ctrl+N" 
+                                       FontWeight="Bold" 
+                                       FontFamily="Consolas"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,4,12,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" 
+                                       Text="New Site"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,4,0,0" />
                             
-                            <TextBlock Text="• Search 'Dark' to apply Dark theme"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
-                            
-                            <TextBlock Text="• Search 'Ocean' to apply Ocean theme"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
-                            
-                            <TextBlock Text="• Search 'Nord' to apply Nord theme"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
-                            
-                            <TextBlock Text="• Search 'Monokai' to apply Monokai theme"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
-                        </StackPanel>
-                    </Border>
+                            <TextBlock Grid.Row="2" Grid.Column="0" 
+                                       Text="Ctrl+S" 
+                                       FontWeight="Bold" 
+                                       FontFamily="Consolas"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,4,12,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" 
+                                       Text="Save Site"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,4,0,0" />
+                        </Grid>
+                    </StackPanel>
+                    
+                    <!-- Dismiss hint -->
+                    <TextBlock Text="Auto-closes in 5 seconds • Click to dismiss"
+                               FontSize="11"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Opacity="0.7"
+                               Margin="0,12,0,0"
+                               FontStyle="Italic" />
                 </StackPanel>
-            </Grid>
-        </DockPanel>
+            </Border>
+        </Border>
+    </Grid>
     </Border>
 </Window>

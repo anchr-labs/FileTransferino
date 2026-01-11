@@ -179,17 +179,21 @@
                         
                         <!-- Hover -->
                         <Style Selector="^:pointerover">
-                            <Setter Property="Background" Value="#15FFFFFF" />
+                            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
                         </Style>
                         
                         <!-- Selected -->
                         <Style Selector="^:selected">
-                            <Setter Property="Background" Value="#25FFFFFF" />
+                            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+                            <Setter Property="BorderThickness" Value="0,0,0,2" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                         </Style>
                         
                         <!-- Selected AND hovered -->
                         <Style Selector="^:selected:pointerover">
-                            <Setter Property="Background" Value="#30FFFFFF" />
+                            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+                            <Setter Property="BorderThickness" Value="0,0,0,2" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                         </Style>
                     </ControlTheme>
                 </ListBox.ItemContainerTheme>
