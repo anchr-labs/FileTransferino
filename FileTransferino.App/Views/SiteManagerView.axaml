@@ -222,6 +222,12 @@
                     Command="{Binding DeleteCommand}"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource TextPrimaryBrush}" />
+            <Button Content="Connect"
+                    MinWidth="100"
+                    x:Name="ConnectButton"
+                    Command="{Binding ConnectCommand}"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>
     </Grid>
 </UserControl>
