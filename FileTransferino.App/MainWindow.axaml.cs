@@ -83,35 +83,48 @@ public partial class MainWindow : Window
             if (_siteManagerViewModel != null)
                 await _siteManagerViewModel.LoadSitesAsync();
 
-            // Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent
-            try
+            // Delegate demo site seeding to a dedicated bootstrapper method
+            await SeedDemoSiteIfNeededAsync(app, _siteManagerViewModel);
+        }
+    }
+
+    /// <summary>
+    /// Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent.
+    /// This method encapsulates data initialization concerns away from the UI initialization flow.
+    /// </summary>
+    /// <param name="app">The current application instance providing access to the site repository.</param>
+    /// <param name="siteManagerViewModel">The site manager view model used to inspect and reload sites.</param>
+    private static async Task SeedDemoSiteIfNeededAsync(App? app, SiteManagerViewModel? siteManagerViewModel)
+    {
+        // Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent
+        try
+        {
+            if (app?.SiteRepository != null && siteManagerViewModel != null && siteManagerViewModel.Sites.Count == 0)
             {
-                if (app?.SiteRepository != null && _siteManagerViewModel != null && _siteManagerViewModel.Sites.Count == 0)
+                var demo = new SiteProfile
                 {
-                    var demo = new SiteProfile
-                    {
-                        Name = "Demo FTP",
-                        Protocol = "FTP",
-                        Host = "ftp.example.com",
-                        Port = 21,
-                        Username = "anonymous",
-                        DefaultRemotePath = "/",
-                        DefaultLocalPath = string.Empty
-                    };
+                    Name = "Demo FTP",
+                    Protocol = "FTP",
+                    Host = "ftp.example.com",
+                    Port = 21,
+                    Username = "anonymous",
+                    DefaultRemotePath = "/",
+                    DefaultLocalPath = string.Empty
+                };
 
-                    var id = await app.SiteRepository.InsertAsync(demo);
-                    demo.Id = id;
-                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo site inserted with ID {id}\n");
+                var id = await app.SiteRepository.InsertAsync(demo);
+                demo.Id = id;
+                System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo site inserted with ID {id}\n");
 
-                    // Reload the VM's sites so the UI updates
-                    await _siteManagerViewModel.LoadSitesAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
+                // Reload the VM's sites so the UI updates
+                await siteManagerViewModel.LoadSitesAsync();
             }
         }
+        catch (Exception ex)
+        {
+            System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
+        }
+    }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error initializing Site Manager: {ex}");
