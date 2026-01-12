@@ -502,16 +502,8 @@ public sealed class SiteManagerViewModel(
     private ICommand? _openDocsCommand;
     public ICommand OpenDocsCommand => _openDocsCommand ??= new DelegateCommand(() =>
     {
-        // Simple behaviour: open the online docs if available; fallback to debug log
-        try
-        {
-            var url = "https://example.com/FileTransferino/docs";
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = url, UseShellExecute = true });
-        }
-        catch
-        {
-            logger?.LogInformation("Docs command triggered");
-        }
+        // Documentation URL is not yet configured; log invocation for now
+        logger?.LogInformation("OpenDocsCommand invoked, but documentation is not yet configured.");
     });
 
     // Ensure CanExecute changes when selection changes
