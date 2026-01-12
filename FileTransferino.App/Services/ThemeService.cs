@@ -65,7 +65,14 @@ public sealed   class ThemeService(
         set
         {
             settings.LastVisitedThemeId = value;
-            try { settingsStore.Save(settings); } catch { }
+            try
+            {
+                settingsStore.Save(settings);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to persist LastVisitedThemeId: {ex}");
+            }
         }
     }
 
