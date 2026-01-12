@@ -163,9 +163,9 @@ public sealed class CommandPaletteViewModel(
 
         var filtered = string.IsNullOrWhiteSpace(query)
             ? source
-            : source.Where(c => c.
-                                    Name.ToLowerInvariant().Contains(query) ||
-                                c.Category.ToLowerInvariant().Contains(query));
+            : source.Where(c =>
+                c.Name.ToLowerInvariant().Contains(query) ||
+                c.Category.ToLowerInvariant().Contains(query));
 
         foreach (var command in filtered)
             FilteredCommands.Add(command);
