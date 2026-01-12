@@ -22,10 +22,16 @@
         </Style>
 
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <!-- Use InputBackgroundBrush so input controls have a consistent themed background (avoids black fill) -->
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <!-- Keep the PART_BorderElement transparent so the containing card background shows through -->
+            <Setter Property="Background" Value="Transparent" />
         </Style>
 
         <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
@@ -37,13 +43,13 @@
         </Style>
 
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
 
         <Style Selector="NumericUpDown">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>

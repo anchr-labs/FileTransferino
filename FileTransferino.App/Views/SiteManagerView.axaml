@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:FileTransferino.App.ViewModels"
+             xmlns:converters="using:FileTransferino.App.Converters"
              x:Class="FileTransferino.App.Views.SiteManagerView"
              x:DataType="vm:SiteManagerViewModel">
 
@@ -14,6 +15,23 @@
             <Setter Property="Foreground" Value="{DynamicResource LabelBrush}" />
             <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}" />
         </Style>
+
+        <!-- Scoped overlay scrollbar styling for ScrollViewers inside this view -->
+        <Style Selector="ScrollViewer ScrollBar">
+            <!-- Make the scrollbar thinner and allow it to overlap content by using a negative margin -->
+            <Setter Property="Width" Value="10" />
+            <Setter Property="Background" Value="Transparent" />
+            <!-- Negative right margin moves the bar slightly over the content so it doesn't push layout -->
+            <Setter Property="Margin" Value="-8,0,0,0" />
+        </Style>
+
+        <Style Selector="ScrollViewer ScrollBar Thumb">
+            <!-- Slightly darker subtle thumb; uses AccentBrush when available -->
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Opacity" Value="0.75" />
+        </Style>
+
     </UserControl.Styles>
 
     <Grid RowDefinitions="*,Auto" Margin="20">
@@ -64,83 +82,117 @@
                     Classes="card"
                     BorderThickness="1"
                     CornerRadius="4"
-                    Padding="20,20,8,20">
-                <ScrollViewer>
-                    <StackPanel Spacing="16" Margin="0,0,12,0">
-                        <TextBlock Text="Site Configuration"
-                                   FontWeight="SemiBold"
-                                   FontSize="{DynamicResource FontSizeLarge}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" />
-
-                        <!-- Name -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Site Name *"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <TextBox Text="{Binding Name}" 
-                                     Watermark="My FTP Server"
-                                     Background="{DynamicResource SurfaceBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </StackPanel>
-
-                        <!-- Protocol -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Protocol *"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <ComboBox SelectedItem="{Binding Protocol}"
-                                      HorizontalAlignment="Stretch"
-                                      Background="{DynamicResource SurfaceBrush}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}">
-                                <ComboBoxItem Content="FTP" />
-                                <ComboBoxItem Content="FTPS" />
-                                <ComboBoxItem Content="SFTP" />
-                            </ComboBox>
-                        </StackPanel>
-
-                        <!-- Host -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Host *"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <TextBox Text="{Binding Host}"
-                                     Watermark="ftp.example.com"
-                                     Background="{DynamicResource SurfaceBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </StackPanel>
-
-                        <!-- Port -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Port *"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <NumericUpDown Value="{Binding Port}"
-                                           Minimum="1"
-                                           Maximum="65535"
-                                           HorizontalAlignment="Stretch"
-                                           Background="{DynamicResource SurfaceBrush}"
+                    Padding="20,20,4,20">
+                <ScrollViewer Padding="0">
+                    <StackPanel Spacing="16" Margin="0">
+                        <!-- Getting Started (visible when no sites exist) -->
+                        <Border IsVisible="{Binding HasNoSites}"
+                                Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="24"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Welcome to FileTransferino"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </StackPanel>
+                                <TextBlock Text="Get started by adding your first site."
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                                    <Button Content="+ Add Site"
+                                            Width="120"
+                                            Command="{Binding NewSiteCommand}"
+                                            Click="OnAddSiteClick"
+                                            IsEnabled="True" />
+                                    <Button Content="Learn More"
+                                            Width="120"
+                                            Command="{Binding OpenDocsCommand}"
+                                            Click="OnLearnMoreClick"
+                                            IsEnabled="True" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
-                        <!-- Username -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Username"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <TextBox Text="{Binding Username}"
-                                     Watermark="username"
-                                     Background="{DynamicResource SurfaceBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </StackPanel>
+                        <!-- Existing Site Form (visible when sites exist or editing) -->
+                        <StackPanel IsVisible="{Binding HasNoSites, Converter={x:Static converters:BoolInverseConverter.Instance}}" Spacing="16" Margin="0,0,12,0">
+                            <TextBlock Text="Site Configuration"
+                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSizeLarge}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" />
 
-                        <!-- Password -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Password"
-                                       Foreground="{DynamicResource LabelBrush}" />
-                            <TextBox Text="{Binding Password}"
-                                     Watermark="Leave empty to keep existing password when editing"
-                                     PasswordChar="•"
-                                     Background="{DynamicResource SurfaceBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}" />
-                            <TextBlock Text="Tip: Leave empty to keep current password when editing"
-                                       Classes="secondary"
-                                       FontStyle="Italic"
-                                       TextWrapping="Wrap" />
+                            <!-- Name -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Site Name *"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <TextBox Text="{Binding Name}" 
+                                         Watermark="My FTP Server"
+                                         Background="{DynamicResource SurfaceBrush}"
+                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Protocol -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Protocol *"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <ComboBox SelectedItem="{Binding Protocol}"
+                                          HorizontalAlignment="Stretch"
+                                          Background="{DynamicResource SurfaceBrush}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}">
+                                    <ComboBoxItem Content="FTP" />
+                                    <ComboBoxItem Content="FTPS" />
+                                    <ComboBoxItem Content="SFTP" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Host -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Host *"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <TextBox Text="{Binding Host}"
+                                         Watermark="ftp.example.com"
+                                         Background="{DynamicResource SurfaceBrush}"
+                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Port -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Port *"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <NumericUpDown Value="{Binding Port}"
+                                               Minimum="1"
+                                               Maximum="65535"
+                                               HorizontalAlignment="Stretch"
+                                               Background="{DynamicResource SurfaceBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Username -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Username"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <TextBox Text="{Binding Username}"
+                                         Watermark="username"
+                                         Background="{DynamicResource SurfaceBrush}"
+                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Password -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Password"
+                                           Foreground="{DynamicResource LabelBrush}" />
+                                <TextBox Text="{Binding Password}"
+                                         Watermark="Leave empty to keep existing password when editing"
+                                         PasswordChar="•"
+                                         Background="{DynamicResource SurfaceBrush}"
+                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                                <TextBlock Text="Tip: Leave empty to keep current password when editing"
+                                           Classes="secondary"
+                                           FontStyle="Italic"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -156,16 +208,19 @@
             <Button Content="New"
                     MinWidth="100"
                     x:Name="NewButton"
+                    Command="{Binding NewSiteCommand}"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource TextPrimaryBrush}" />
             <Button Content="Save"
                     MinWidth="100"
                     x:Name="SaveButton"
+                    Command="{Binding SaveCommand}"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource TextPrimaryBrush}" />
             <Button Content="Delete"
                     MinWidth="100"
                     x:Name="DeleteButton"
+                    Command="{Binding DeleteCommand}"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>

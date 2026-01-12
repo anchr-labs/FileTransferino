@@ -15,7 +15,7 @@
 
 ### **After:**
 - Site Manager is the main application view (always visible)
-- Welcome overlay auto-dismisses after 3 seconds on first run
+- Welcome overlay auto-dismisses after 4 seconds on first run
 - Direct access to site management
 - Command Palette remains available for power users
 
@@ -36,7 +36,7 @@
 2. **`MainWindow.axaml.cs`**
    - New fields: `_siteManagerViewModel`, `_welcomeTimer`, `_welcomeDismissed`
    - Auto-initialization of Site Manager on window open
-   - Welcome overlay logic (3s timer for first run)
+   - Welcome overlay logic (4s timer for first run)
    - New keyboard shortcuts: `Ctrl+N` (New Site), `Ctrl+S` (Save Site)
 
 ---
@@ -51,18 +51,18 @@ Initialize Site Manager (load sites)
     ↓
 Check: HasExistingSites?
     ├── Yes (Subsequent Run) → Show Site Manager directly
-    └── No (First Run) → Show Welcome Overlay (3s) → Show Site Manager
+    └── No (First Run) → Show Welcome Overlay (4s) → Show Site Manager
 ```
 
 ### **Welcome Overlay Behavior:**
 - **Trigger:** First run (no existing sites)
-- **Duration:** 5 seconds (auto-dismiss) OR click anywhere OR press any key
+- **Duration:** 4 seconds (auto-dismiss) OR click anywhere OR press any key
 - **Style:** Compact centered banner (not full-screen)
 - **Content:**
   - ⚡ Lightning logo + "FileTransferino"
   - App description: "FTP/SFTP File Transfer Client"
   - Quick shortcuts panel (formatted as table)
-  - Dismiss instruction: "Auto-closes in 5 seconds • Click to dismiss"
+  - Dismiss instruction: "Auto-closes in 4 seconds • Click to dismiss"
 - **Background:** Dark semi-transparent overlay (#EE000000) covering entire window
 - **Banner:** Theme-aware card with accent border, shadow, rounded corners
 
@@ -150,7 +150,7 @@ Check: HasExistingSites?
 
 - [x] App launches without errors
 - [x] Site Manager visible on first run after welcome overlay
-- [x] Welcome overlay auto-dismisses after 5 seconds
+- [x] Welcome overlay auto-dismisses after 4 seconds
 - [x] Welcome overlay dismisses on click
 - [x] Welcome overlay dismisses on any key press
 - [x] Welcome overlay covers entire window (not just part of it)
@@ -191,7 +191,7 @@ Check: HasExistingSites?
 
 ### **Color Scheme:**
 - Maintained theme-aware design
-- Welcome overlay: Dark semi-transparent (#DD000000)
+- Welcome overlay: Dark semi-transparent (#EE000000) covering entire window; centered banner card for tips
 - Consistent with existing design system
 
 ---

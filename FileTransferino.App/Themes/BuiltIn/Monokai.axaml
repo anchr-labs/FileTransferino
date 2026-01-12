@@ -13,6 +13,7 @@
     <Color x:Key="ErrorColor">#F92672</Color>
     <Color x:Key="SuccessColor">#A6E22E</Color>
     <Color x:Key="LabelColor">#ECECEC</Color>
+    <Color x:Key="InputBackgroundColor">#272822</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="BackgroundBrush" Color="#272822" />
@@ -24,6 +25,7 @@
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#A1EFE4" />
     <SolidColorBrush x:Key="ErrorBrush" Color="#F92672" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#A6E22E" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#272822" />
     <SolidColorBrush x:Key="LabelBrush" Color="#ECECEC" />
     
     <!-- Fluent Theme Overrides for ListBox selection colors -->

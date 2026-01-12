@@ -6,6 +6,7 @@ using FileTransferino.Data.Repositories;
 using FileTransferino.Infrastructure;
 using FileTransferino.Security;
 using Microsoft.Extensions.Logging;
+using System.Windows.Input;
 
 namespace FileTransferino.App.ViewModels;
 
@@ -34,6 +35,8 @@ public sealed class SiteManagerViewModel(
 
     public ObservableCollection<SiteProfile> Sites { get; } = [];
 
+    public bool HasNoSites => Sites.Count == 0;
+
     public SiteProfile? SelectedSite
     {
         get => _selectedSite;
@@ -45,6 +48,8 @@ public sealed class SiteManagerViewModel(
             _selectedSite = value;
             OnPropertyChanged();
             LoadSelectedSite();
+            // Update command availability when selection changes
+            RaiseCommandCanExecuteChanged();
         }
     }
 
@@ -159,12 +164,20 @@ public sealed class SiteManagerViewModel(
         try
         {
             logger?.LogInformation("Loading sites from repository");
-            Sites.Clear();
-            var sites = await siteRepository.GetAllAsync();
-            foreach (var site in sites)
-                Sites.Add(site);
+            var sites = (await siteRepository.GetAllAsync()).ToList();
 
-            logger?.LogInformation("Loaded {SiteCount} sites", Sites.Count);
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Sites.Clear();
+                foreach (var site in sites)
+                    Sites.Add(site);
+
+                logger?.LogInformation("Loaded {SiteCount} sites", Sites.Count);
+                // Notify UI that site list presence may have changed
+                OnPropertyChanged(nameof(HasNoSites));
+                // Update command availability after loading
+                RaiseCommandCanExecuteChanged();
+            });
         }
         catch (Exception ex)
         {
@@ -289,6 +302,10 @@ public sealed class SiteManagerViewModel(
 
             Password = string.Empty;
             _isPasswordChanged = false;
+            // Notify UI that site list presence may have changed
+            OnPropertyChanged(nameof(HasNoSites));
+            // Update command availability after save
+            RaiseCommandCanExecuteChanged();
             return true;
         }
         catch (Exception ex)
@@ -391,6 +408,8 @@ public sealed class SiteManagerViewModel(
             });
 
             logger?.LogInformation("Site deletion completed successfully for ID {SiteId}", id);
+            // Notify that the site list has changed
+            OnPropertyChanged(nameof(HasNoSites));
             return true;
         }
         catch (Exception ex)
@@ -413,6 +432,95 @@ public sealed class SiteManagerViewModel(
             "SFTP" => 22,
             _ => 21
         };
+    }
+
+    // Simple command implementation for local use
+    private sealed class DelegateCommand : ICommand
+    {
+        private readonly Action? _execute;
+        private readonly Func<bool>? _canExecute;
+
+        public DelegateCommand(Action execute, Func<bool>? canExecute = null)
+        {
+            _execute = execute;
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
+
+        public void Execute(object? parameter) => _execute?.Invoke();
+
+        public event EventHandler? CanExecuteChanged;
+
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private sealed class AsyncDelegateCommand : ICommand
+    {
+        private readonly Func<Task> _executeAsync;
+        private readonly Func<bool>? _canExecute;
+        private bool _isExecuting;
+
+        public AsyncDelegateCommand(Func<Task> executeAsync, Func<bool>? canExecute = null)
+        {
+            _executeAsync = executeAsync;
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object? parameter) => !_isExecuting && (_canExecute?.Invoke() ?? true);
+
+        public async void Execute(object? parameter)
+        {
+            if (!CanExecute(parameter)) return;
+            try
+            {
+                _isExecuting = true;
+                RaiseCanExecuteChanged();
+                await _executeAsync();
+            }
+            finally
+            {
+                _isExecuting = false;
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public event EventHandler? CanExecuteChanged;
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Commands for the action bar
+    private ICommand? _newSiteCommand;
+    public ICommand NewSiteCommand => _newSiteCommand ??= new DelegateCommand(() => NewSite());
+
+    private ICommand? _saveCommand;
+    public ICommand SaveCommand => _saveCommand ??= new AsyncDelegateCommand(async () => await SaveSiteAsync(), () => true);
+
+    private ICommand? _deleteCommand;
+    public ICommand DeleteCommand => _deleteCommand ??= new AsyncDelegateCommand(async () => await DeleteSiteAsync(), () => SelectedSite != null);
+
+    private ICommand? _openDocsCommand;
+    public ICommand OpenDocsCommand => _openDocsCommand ??= new DelegateCommand(() =>
+    {
+        // Simple behaviour: open the online docs if available; fallback to debug log
+        try
+        {
+            var url = "https://example.com/FileTransferino/docs";
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = url, UseShellExecute = true });
+        }
+        catch
+        {
+            logger?.LogInformation("Docs command triggered");
+        }
+    });
+
+    // Ensure CanExecute changes when selection changes
+    private void RaiseCommandCanExecuteChanged()
+    {
+        (_deleteCommand as AsyncDelegateCommand)?.RaiseCanExecuteChanged();
+        (_saveCommand as AsyncDelegateCommand)?.RaiseCanExecuteChanged();
+        (_newSiteCommand as DelegateCommand)?.RaiseCanExecuteChanged();
+        (_openDocsCommand as DelegateCommand)?.RaiseCanExecuteChanged();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

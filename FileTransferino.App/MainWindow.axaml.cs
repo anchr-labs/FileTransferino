@@ -6,6 +6,7 @@ using FileTransferino.App.ViewModels;
 using FileTransferino.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using FileTransferino.Core.Models;
 
 namespace FileTransferino.App;
 
@@ -37,21 +38,79 @@ public partial class MainWindow : Window
         try
         {
             var app = Application.Current as App;
-            if (app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null)
-                return;
 
-            var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
-            _siteManagerViewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
-            
             // Set DataContext for the embedded SiteManagerView
             var siteManagerView = this.FindControl<SiteManagerView>("SiteManagerView");
             if (siteManagerView != null)
             {
-                siteManagerView.DataContext = _siteManagerViewModel;
+                // Wait for App services to initialize (up to 10 seconds)
+                var attempts = 0;
+                while ((app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null) && attempts < 100)
+                {
+                    await Task.Delay(100);
+                    attempts++;
+                    app = Application.Current as App;
+                }
+
+                if (app?.SiteRepository != null && app.CredentialStore != null && app.AppPaths != null && app.Services != null)
+                {
+                    // If the view didn't already set a DataContext (fallback), create and assign the primary VM
+                    if (siteManagerView.DataContext == null)
+                    {
+                        var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
+                        _siteManagerViewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
+                        siteManagerView.DataContext = _siteManagerViewModel;
+                        // Load sites with the established site repository
+                        await _siteManagerViewModel.LoadSitesAsync();
+                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow set DataContext after {attempts} attempts\n");
+                    }
+                    else
+                    {
+                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow found existing DataContext (view fallback)\n");
+                    }
+                }
+                else
+                {
+                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow gave up waiting for App services after {attempts} attempts\n");
+                }
             }
-            
-            // Load sites
-            await _siteManagerViewModel.LoadSitesAsync();
+
+            // Ensure we have a VM reference (maybe set by the view fallback)
+            if (siteManagerView != null)
+                _siteManagerViewModel ??= siteManagerView.DataContext as SiteManagerViewModel;
+
+            // Load sites if we have a ViewModel
+            if (_siteManagerViewModel != null)
+                await _siteManagerViewModel.LoadSitesAsync();
+
+            // Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent
+            try
+            {
+                if (app?.SiteRepository != null && _siteManagerViewModel != null && _siteManagerViewModel.Sites.Count == 0)
+                {
+                    var demo = new SiteProfile
+                    {
+                        Name = "Demo FTP",
+                        Protocol = "FTP",
+                        Host = "ftp.example.com",
+                        Port = 21,
+                        Username = "anonymous",
+                        DefaultRemotePath = "/",
+                        DefaultLocalPath = string.Empty
+                    };
+
+                    var id = await app.SiteRepository.InsertAsync(demo);
+                    demo.Id = id;
+                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo site inserted with ID {id}\n");
+
+                    // Reload the VM's sites so the UI updates
+                    await _siteManagerViewModel.LoadSitesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
+            }
         }
         catch (Exception ex)
         {
@@ -69,11 +128,11 @@ public partial class MainWindow : Window
         
         if (!hasExistingSites)
         {
-            // First run: show overlay for 5 seconds
+            // First run: show overlay for 4 seconds
             overlay.IsVisible = true;
             _welcomeTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(5)
+                Interval = TimeSpan.FromSeconds(4)
             };
             _welcomeTimer.Tick += (s, e) => DismissWelcomeOverlay();
             _welcomeTimer.Start();

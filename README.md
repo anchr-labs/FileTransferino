@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿# FileTransferino Solution
+﻿# FileTransferino Solution
 
 A .NET 10 solution for a File Transfer application with clean architecture.
 
@@ -122,12 +122,17 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 - **Profile Management**: Create, edit, and delete site profiles
 - **Database Persistence**: Site profiles stored in SQLite (002_sites.sql migration)
 - **Encrypted Secrets**: Credentials stored in `{Root}/secrets/` folder (never in database)
-- **Command Palette Integration**: Open with "Open Site Manager" command
+- **Main Application View**: The Site Manager is now embedded directly in the main window (no separate window required)
 - **CRUD Operations**: 
   - Add new sites (New button)
   - Edit existing sites (select from list)
   - Delete sites (with confirmation dialog)
   - Auto-port selection (FTP/FTPS=21, SFTP=22)
+
+### Welcome Overlay (First Run)
+- **Behavior**: A compact, interruptible banner appears on first run to show quick tips and shortcuts
+- **Duration**: 4 seconds (auto-dismiss) or dismissible via click or any key
+- **Style**: Semi-transparent backdrop with a centered card showing shortcuts and app name
 
 ## Notes
 
@@ -152,9 +157,9 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
   - 002_sites.sql migration (Sites table with timestamps)
   - ISiteRepository + SiteRepository (Dapper-based CRUD)
   - ICredentialStore + WindowsDpapiCredentialStore (Windows DPAPI encryption)
-  - SiteManagerWindow + SiteManagerViewModel (MVVM pattern)
+  - SiteManagerView + SiteManagerViewModel (MVVM pattern)
   - Secure password storage (encrypted files in secrets/ folder)
-  - Command palette integration ("Open Site Manager")
+  - Site Manager is the main embedded view
   - Full CRUD operations with confirmation dialogs
 
 ## Documentation

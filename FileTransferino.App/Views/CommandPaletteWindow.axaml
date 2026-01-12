@@ -18,7 +18,8 @@
 
     <Window.Styles>
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <!-- Use the themed input background so the search box updates when themes are previewed -->
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
@@ -28,19 +29,27 @@
         
         <!-- Ensure TextBox background stays consistent -->
         <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <!-- Let the template border use the TextBox.Background so dynamic theme changes apply correctly -->
+            <Setter Property="Background" Value="{TemplateBinding Background}" />
         </Style>
         
         <!-- Focused TextBox gets a subtle glow -->
         <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <!-- Focus should only affect the border (underline), not the background -->
             <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+            <!-- Keep background consistent for keyboard focus as well -->
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,2" />
         </Style>
         
         <!-- Pointer over state -->
         <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+        </Style>
+        
+        <!-- Pointer pressed (mouse down) should keep the same themed input background (prevents transient black fill) -->
+        <Style Selector="TextBox:pointerpressed /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
         </Style>
         
         <!-- Watermark text -->
@@ -181,17 +190,31 @@
                         <Style Selector="^:pointerover">
                             <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
                         </Style>
+
+                        <!-- Keyboard focus (use input background like hover) -->
+                        <Style Selector="^:focus">
+                            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+                        </Style>
                         
                         <!-- Selected -->
                         <Style Selector="^:selected">
-                            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+                            <!-- Don't fill the item (avoids dark/black background in some themes) -->
+                            <Setter Property="Background" Value="Transparent" />
                             <Setter Property="BorderThickness" Value="0,0,0,2" />
                             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                         </Style>
                         
                         <!-- Selected AND hovered -->
                         <Style Selector="^:selected:pointerover">
-                            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+                            <!-- Keep selected hover visual consistent: transparent with accent underline -->
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderThickness" Value="0,0,0,2" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                        </Style>
+
+                        <!-- Selected AND keyboard-focused: show InputBackgroundBrush to indicate focus but keep underline -->
+                        <Style Selector="^:selected:focus">
+                            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
                             <Setter Property="BorderThickness" Value="0,0,0,2" />
                             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                         </Style>

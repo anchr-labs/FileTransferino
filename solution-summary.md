@@ -1,4 +1,4 @@
-﻿# FileTransferino Solution - Status Summary
+﻿﻿# FileTransferino Solution - Status Summary
 
 **Last Updated:** January 11, 2026 (Slice 2 Complete)
 
@@ -159,7 +159,7 @@ FileTransferino.Mobile
   - **Theme Inheritance**: Uses DynamicResource to match user's selected theme
   - Confirmation dialog for deletions
   - Robust error handling with logging
-- ✅ **Command Palette Integration** - "Themes..." submenu + "Open Site Manager" command
+- ✅ **Command Palette Integration** - "Themes..." submenu (command palette remains for power users)
   - Submenu navigation (Enter opens, Escape backs out)
   - Theme preview in submenu without closing palette
 - ✅ **Adaptive Watermarks** - WatermarkBrush token per theme for placeholder text visibility

@@ -3,6 +3,9 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
 using FileTransferino.App.ViewModels;
+using Avalonia.Media;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace FileTransferino.App.Views;
 
@@ -50,7 +53,7 @@ public partial class CommandPaletteWindow : Window
         {
             _searchBox.KeyDown += OnSearchBoxKeyDown;
         }
-
+        
         // Wire up list interactions
         if (_list != null)
         {
@@ -76,7 +79,8 @@ public partial class CommandPaletteWindow : Window
                 var cmd = _viewModel.SelectedCommand;
                 if (cmd != null)
                 {
-                    _viewModel.PreviewCommand(cmd);
+                    // Use debounce to avoid rapid flicker, but allow preview on keyboard nav
+                    _viewModel.PreviewCommandDebounced(cmd);
                 }
             };
 
@@ -84,7 +88,18 @@ public partial class CommandPaletteWindow : Window
             _list.DoubleTapped += (_, _) =>
             {
                 var cmd = _viewModel.SelectedCommand;
-                cmd?.Action.Invoke();
+                if (cmd == null)
+                    return;
+
+                // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
+                _viewModel.ExecuteSelectedCommand();
+
+                // If this was a theme command (has Id) or a direct action, close the palette
+                if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
+                {
+                    _selectionConfirmed = true;
+                    Close();
+                }
             };
             
             // Also handle single click on items
@@ -209,21 +224,19 @@ public partial class CommandPaletteWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             var cmd = _viewModel.SelectedCommand;
-            if (cmd != null)
-            {
-                // Cancel pending previews and execute immediately
-                _viewModel.ExecuteSelectedCommand();
+            if (cmd == null)
+                return;
 
-                // If this was a theme command (has Id) or it's a direct action, close the palette
-                // If the action opened a submenu (like clicking 'Themes...') and had no Id,
-                // keep the palette open so the user can pick inside it.
-                if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
-                {
-                    _selectionConfirmed = true;
-                    Close();
-                }
+            // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
+            _viewModel.ExecuteSelectedCommand();
+
+            // If this was a theme command (has Id) or a direct action, close the palette
+            if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
+            {
+                _selectionConfirmed = true;
+                Close();
             }
-        }, DispatcherPriority.Background);
+        });
     }
 
     private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)

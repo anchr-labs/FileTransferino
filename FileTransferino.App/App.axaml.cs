@@ -81,6 +81,7 @@ public class App : Application
             // Step 2: Load settings
             Debug.WriteLine("Loading settings...");
             _settingsStore = new SettingsStore(_appPaths);
+
             _settings = await _settingsStore.LoadAsync();
             Debug.WriteLine($"Settings loaded. FirstRunUtc: {_settings.FirstRunUtc}, LastRunUtc: {_settings.LastRunUtc}");
 
@@ -138,7 +139,7 @@ public class App : Application
         }
     }
 
-    private async Task ShowErrorAndExitAsync(IClassicDesktopStyleApplicationLifetime desktop, string message)
+    private static async Task ShowErrorAndExitAsync(IClassicDesktopStyleApplicationLifetime desktop, string message)
     {
         Debug.WriteLine($"FATAL: {message}");
 
