@@ -62,16 +62,16 @@ public partial class MainWindow : Window
                         siteManagerView.DataContext = _siteManagerViewModel;
                         // Load sites with the established site repository
                         await _siteManagerViewModel.LoadSitesAsync();
-                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow set DataContext after {attempts} attempts\n");
+                        System.IO.File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow set DataContext after {attempts} attempts\n");
                     }
                     else
                     {
-                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow found existing DataContext (view fallback)\n");
+                        System.IO.File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow found existing DataContext (view fallback)\n");
                     }
                 }
                 else
                 {
-                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow gave up waiting for App services after {attempts} attempts\n");
+                    System.IO.File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow gave up waiting for App services after {attempts} attempts\n");
                 }
             }
 
