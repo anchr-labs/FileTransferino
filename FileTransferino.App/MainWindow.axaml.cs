@@ -1,9 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using FileTransferino.App.Services;
 using FileTransferino.App.ViewModels;
 using FileTransferino.App.Views;
+using FileTransferino.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -69,13 +69,24 @@ public partial class MainWindow : Window
     private async void OpenSiteManager()
     {
         var app = Application.Current as App;
-        if (app?.SiteRepository == null || app?.CredentialStore == null || app?.Services == null)
+        if (app == null)
             return;
 
-        var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
-        
-        var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, logger);
-        var siteManager = new SiteManagerWindow(viewModel);
-        await siteManager.ShowDialog(this);
+        if (app.Services != null)
+        {
+            var logger = app.Services?.GetService<ILogger<SiteManagerViewModel>>();
+            var appPaths = app.Services?.GetService<AppPaths>();
+            if (appPaths == null)
+                return;
+
+            if (app.SiteRepository == null || app.CredentialStore == null || logger == null || appPaths == null)
+            {
+                return;
+            }
+
+            var viewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, appPaths, logger);
+            var siteManager = new SiteManagerWindow(viewModel);
+            await siteManager.ShowDialog(this);
+        }
     }
 }

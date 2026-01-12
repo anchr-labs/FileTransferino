@@ -8,9 +8,21 @@ public partial class SiteManagerWindow : Window
 {
     private readonly SiteManagerViewModel _viewModel;
 
-    // Parameterless constructor for XAML loader
-    public SiteManagerWindow() : this(new SiteManagerViewModel(null!, null!)) { }
+    // Parameterless constructor for XAML loader / design-time tooling
+    public SiteManagerWindow()
+    {
+        if (Design.IsDesignMode)
+        {
+            // In design mode, initialize the UI without requiring a real view model
+            InitializeComponent();
+            return;
+        }
 
+        // At runtime, this constructor should not be used because it cannot provide
+        // the required dependencies for SiteManagerViewModel.
+        throw new InvalidOperationException(
+            "SiteManagerWindow must be constructed with a SiteManagerViewModel instance.");
+    }
     public SiteManagerWindow(SiteManagerViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
@@ -48,7 +60,7 @@ public partial class SiteManagerWindow : Window
     private async void OnSaveClick(object? sender, RoutedEventArgs e)
     {
         var success = await _viewModel.SaveSiteAsync();
-        
+
         if (!success)
         {
             // Show error message
@@ -66,7 +78,7 @@ public partial class SiteManagerWindow : Window
                     VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
                 }
             };
-            
+
             await messageBox.ShowDialog(this);
         }
     }

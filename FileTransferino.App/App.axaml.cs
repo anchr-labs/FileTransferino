@@ -120,6 +120,9 @@ public class App : Application
             services.AddSingleton(_siteRepository);
             services.AddSingleton(_credentialStore);
             
+            // Register AppPaths in DI
+            services.AddSingleton(_appPaths);
+
             // Build service provider
             _serviceProvider = services.BuildServiceProvider();
             
