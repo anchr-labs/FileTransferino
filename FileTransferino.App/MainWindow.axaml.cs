@@ -96,7 +96,6 @@ public partial class MainWindow : Window
     /// <param name="siteManagerViewModel">The site manager view model used to inspect and reload sites.</param>
     private static async Task SeedDemoSiteIfNeededAsync(App? app, SiteManagerViewModel? siteManagerViewModel)
     {
-        // Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent
         try
         {
             if (app?.SiteRepository != null && siteManagerViewModel != null && siteManagerViewModel.Sites.Count == 0)
