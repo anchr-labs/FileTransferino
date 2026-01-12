@@ -129,8 +129,7 @@
                                            Foreground="{DynamicResource LabelBrush}" />
                                 <TextBox Text="{Binding Name}" 
                                          Watermark="My FTP Server"
-                                         Background="{DynamicResource SurfaceBrush}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                                         Background="{DynamicResource SurfaceBrush}" />
                             </StackPanel>
 
                             <!-- Protocol -->

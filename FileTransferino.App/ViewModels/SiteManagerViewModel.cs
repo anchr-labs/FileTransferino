@@ -20,8 +20,6 @@ public sealed class SiteManagerViewModel(
     ILogger<SiteManagerViewModel>? logger = null
 ) : INotifyPropertyChanged
 {
-    private readonly string _errorLogPath = Path.Combine(appPaths.Logs, "errors.log");
-
     private SiteProfile? _selectedSite;
     private string _name = string.Empty;
     private string _protocol = "FTP";

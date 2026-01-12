@@ -22,36 +22,63 @@
         </Style>
 
         <Style Selector="TextBox">
-            <!-- Use InputBackgroundBrush so input controls have a consistent themed background (avoids black fill) -->
+            <!-- Use InputBackgroundBrush so input controls have a consistent themed background -->
             <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
             <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
         </Style>
 
         <Style Selector="TextBox /template/ Border#PART_BorderElement">
-            <!-- Keep the PART_BorderElement transparent so the containing card background shows through -->
-            <Setter Property="Background" Value="Transparent" />
+             <Setter Property="Background" Value="{TemplateBinding Background}" />
         </Style>
 
-        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
 
-        <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
-            <Setter Property="Foreground" Value="{DynamicResource WatermarkBrush}" />
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
 
+        <!-- Fix ComboBox styling -->
         <Style Selector="ComboBox">
             <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
+
+
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+
+        <Style Selector="ComboBox:focus /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+        
+        <Style Selector="ComboBox:dropdownopen /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+        
+        <!-- Note: ComboBoxItem styles moved to App.axaml to target Popups correctly -->
 
         <Style Selector="NumericUpDown">
             <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
         </Style>
 
         <Style Selector="ListBox">

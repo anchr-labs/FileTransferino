@@ -3,9 +3,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
 using FileTransferino.App.ViewModels;
-using Avalonia.Media;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace FileTransferino.App.Views;
 

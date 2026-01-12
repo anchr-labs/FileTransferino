@@ -27,7 +27,7 @@ public sealed class PaletteCommand
 public sealed class CommandPaletteViewModel(
     IThemeService? themeService = null,
     string? originalThemeId = null,
-    int debounceMilliseconds = 50) : INotifyPropertyChanged
+    int debounceMilliseconds = 200) : INotifyPropertyChanged
 {
     private string _searchText = string.Empty;
     private PaletteCommand? _selectedCommand;
