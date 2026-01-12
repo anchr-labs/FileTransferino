@@ -39,13 +39,28 @@ public sealed class WindowsDpapiCredentialStore : ICredentialStore
         }
     }
 
+    private static string GetKeyHash(string key)
+    {
+        // Use SHA-256 hash of the key to derive a collision-resistant, filename-safe value
+        using var sha256 = SHA256.Create();
+        var keyBytes = Encoding.UTF8.GetBytes(key);
+        var hashBytes = sha256.ComputeHash(keyBytes);
+
+        var sb = new StringBuilder(hashBytes.Length * 2);
+        foreach (var b in hashBytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+
+        return sb.ToString();
+    }
+
     private string GetFilePath(string key)
     {
-        // Sanitize key to be filename-safe
-        var safeKey = string.Concat(key.Select(c => 
-            char.IsLetterOrDigit(c) || c == '-' || c == '_' ? c : '_'));
+        // Derive filename from a hash of the key to avoid collisions due to sanitization
+        var hashedKey = GetKeyHash(key);
         
-        return Path.Combine(_secretsPath, $"{safeKey}.dat");
+        return Path.Combine(_secretsPath, $"{hashedKey}.dat");
     }
 
     public async Task SaveAsync(string key, string secret)

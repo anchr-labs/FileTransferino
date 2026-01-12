@@ -17,7 +17,7 @@ public sealed class SiteManagerViewModel(
     ISiteRepository siteRepository,
     ICredentialStore credentialStore,
     AppPaths appPaths,
-    ILogger<SiteManagerViewModel>? logger = null
+    ILogger<SiteManagerViewModel> logger
 ) : INotifyPropertyChanged
 {
     private SiteProfile? _selectedSite;
@@ -500,16 +500,11 @@ public sealed class SiteManagerViewModel(
     private ICommand? _openDocsCommand;
     public ICommand OpenDocsCommand => _openDocsCommand ??= new DelegateCommand(() =>
     {
-        // Simple behaviour: open the online docs if available; fallback to debug log
-        try
-        {
-            var url = "https://example.com/FileTransferino/docs";
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = url, UseShellExecute = true });
-        }
-        catch
-        {
-            logger?.LogInformation("Docs command triggered");
-        }
+        // For now, there is no dedicated online documentation URL for the Site Manager.
+        // Log a clear message so that this is visible in diagnostics without misleading users.
+        logger?.LogInformation(
+            "SiteManagerViewModel.OpenDocsCommand invoked, but no documentation URL is configured. " +
+            "Please refer to the project README.md and solution-summary.md for current documentation.");
     });
 
     // Ensure CanExecute changes when selection changes
