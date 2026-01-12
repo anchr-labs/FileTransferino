@@ -45,14 +45,14 @@ public partial class MainWindow : Window
             {
                 // Wait for App services to initialize (up to 10 seconds)
                 var attempts = 0;
-                while ((app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null) && attempts < 100)
+                while (!AreServicesInitialized(app) && attempts < 100)
                 {
                     await Task.Delay(100);
                     attempts++;
                     app = Application.Current as App;
                 }
 
-                if (app?.SiteRepository != null && app.CredentialStore != null && app.AppPaths != null && app.Services != null)
+                if (AreServicesInitialized(app))
                 {
                     // If the view didn't already set a DataContext (fallback), create and assign the primary VM
                     if (siteManagerView.DataContext == null)
@@ -251,5 +251,13 @@ public partial class MainWindow : Window
     private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close();
+    }
+
+    private static bool AreServicesInitialized(App? app)
+    {
+        return app?.SiteRepository != null 
+            && app.CredentialStore != null 
+            && app.AppPaths != null 
+            && app.Services != null;
     }
 }
