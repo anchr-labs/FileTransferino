@@ -86,6 +86,10 @@ public partial class MainWindow : Window
             // Delegate demo site seeding to a dedicated bootstrapper method
             await SeedDemoSiteIfNeededAsync(app, _siteManagerViewModel);
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error initializing Site Manager: {ex}");
+        }
     }
 
     /// <summary>
@@ -124,12 +128,7 @@ public partial class MainWindow : Window
             System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
         }
     }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error initializing Site Manager: {ex}");
-        }
-    }
-
+    
     private void ShowWelcomeOverlay()
     {
         var overlay = this.FindControl<Border>("WelcomeOverlay");
