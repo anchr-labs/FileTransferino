@@ -17,7 +17,7 @@ public sealed class SiteManagerViewModel(
     ISiteRepository siteRepository,
     ICredentialStore credentialStore,
     AppPaths appPaths,
-    ILogger<SiteManagerViewModel>? logger = null
+    ILogger<SiteManagerViewModel> logger
 ) : INotifyPropertyChanged
 {
     private readonly string _errorLogPath = Path.Combine(appPaths.Logs, "errors.log");
