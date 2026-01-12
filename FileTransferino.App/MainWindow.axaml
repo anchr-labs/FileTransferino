@@ -200,7 +200,7 @@
                     </StackPanel>
                     
                     <!-- Dismiss hint -->
-                    <TextBlock Text="Auto-closes in 5 seconds • Click to dismiss"
+                    <TextBlock Text="Auto-closes in 4 seconds • Click to dismiss"
                                FontSize="11"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
