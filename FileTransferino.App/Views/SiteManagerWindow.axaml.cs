@@ -1,13 +1,12 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FileTransferino.App.ViewModels;
-using FileTransferino.Infrastructure;
 
 namespace FileTransferino.App.Views;
 
 public partial class SiteManagerWindow : Window
 {
-    private readonly SiteManagerViewModel _viewModel;
+    private readonly SiteManagerViewModel? _viewModel;
 
     // Parameterless constructor for XAML loader / design-time tooling
     public SiteManagerWindow()
@@ -50,11 +49,16 @@ public partial class SiteManagerWindow : Window
             closeButton.Click += OnCloseClick;
         
         // Load sites when window opens
-        Opened += async (_, _) => await _viewModel.LoadSitesAsync();
+        Opened += async (_, _) =>
+        {
+            if (_viewModel != null)
+                await _viewModel.LoadSitesAsync();
+        };
     }
 
     private void OnNewClick(object? sender, RoutedEventArgs e)
     {
+        if (_viewModel == null) return;
         _viewModel.NewSite();
     }
 
@@ -62,42 +66,46 @@ public partial class SiteManagerWindow : Window
     {
         try
         {
+            if (_viewModel == null) return;
+
             var success = await _viewModel.SaveSiteAsync();
-            
-            if (!success)
-            {
-                // Show error message
-                var messageBox = new Window
-                {
-                    Title = "Error",
-                    Width = 300,
-                    Height = 150,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    Content = new TextBlock
-                    {
-                        Text = "Failed to save site. Please ensure Name and Host are filled.",
-                        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-                        Margin = new Avalonia.Thickness(20),
-                        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-                    }
-                };
-                
-                await messageBox.ShowDialog(this);
-            }
+             
+             if (!success)
+             {
+                 // Show error message
+                 var messageBox = new Window
+                 {
+                     Title = "Error",
+                     Width = 300,
+                     Height = 150,
+                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                     Content = new TextBlock
+                     {
+                         Text = "Failed to save site. Please ensure Name and Host are filled.",
+                         TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                         Margin = new Avalonia.Thickness(20),
+                         VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                     }
+                 };
+                 
+                 await messageBox.ShowDialog(this);
+             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error saving site: {ex}");
         }
     }
+ 
+     private async void OnDeleteClick(object? sender, RoutedEventArgs e)
+     {
+            if (_viewModel == null) return;
 
-    private async void OnDeleteClick(object? sender, RoutedEventArgs e)
-    {
-        var selected = _viewModel.SelectedSite;
-        if (selected == null)
-            return;
+            var selected = _viewModel.SelectedSite;
+         if (selected == null)
+             return;
 
-        var siteName = selected.Name;
+         var siteName = selected.Name;
 
         // Confirm deletion
         var yesButton = new Button { Content = "Yes", Width = 80 };

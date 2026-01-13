@@ -129,8 +129,7 @@
                                            Foreground="{DynamicResource LabelBrush}" />
                                 <TextBox Text="{Binding Name}" 
                                          Watermark="My FTP Server"
-                                         Background="{DynamicResource SurfaceBrush}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" />
+                                         Background="{DynamicResource SurfaceBrush}" />
                             </StackPanel>
 
                             <!-- Protocol -->
@@ -221,6 +220,12 @@
                     MinWidth="100"
                     x:Name="DeleteButton"
                     Command="{Binding DeleteCommand}"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource TextPrimaryBrush}" />
+            <Button Content="Connect"
+                    MinWidth="100"
+                    x:Name="ConnectButton"
+                    Command="{Binding ConnectCommand}"
                     Background="{DynamicResource SurfaceBrush}"
                     Foreground="{DynamicResource TextPrimaryBrush}" />
         </StackPanel>

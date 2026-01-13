@@ -14,7 +14,7 @@ public partial class MainWindow : Window
 {
     private SiteManagerViewModel? _siteManagerViewModel;
     private DispatcherTimer? _welcomeTimer;
-    private bool _welcomeDismissed = false;
+    private bool _welcomeDismissed;
 
     public MainWindow()
     {
@@ -38,79 +38,15 @@ public partial class MainWindow : Window
         try
         {
             var app = Application.Current as App;
+            await WaitForAppServicesInitialization(app);
 
-            // Set DataContext for the embedded SiteManagerView
             var siteManagerView = this.FindControl<SiteManagerView>("SiteManagerView");
             if (siteManagerView != null)
             {
-                // Wait for App services to initialize (up to 10 seconds)
-                var attempts = 0;
-                while ((app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null) && attempts < 100)
-                {
-                    await Task.Delay(100);
-                    attempts++;
-                    app = Application.Current as App;
-                }
-
-                if (app?.SiteRepository != null && app.CredentialStore != null && app.AppPaths != null && app.Services != null)
-                {
-                    // If the view didn't already set a DataContext (fallback), create and assign the primary VM
-                    if (siteManagerView.DataContext == null)
-                    {
-                        var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
-                        _siteManagerViewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
-                        siteManagerView.DataContext = _siteManagerViewModel;
-                        // Load sites with the established site repository
-                        await _siteManagerViewModel.LoadSitesAsync();
-                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow set DataContext after {attempts} attempts\n");
-                    }
-                    else
-                    {
-                        System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow found existing DataContext (view fallback)\n");
-                    }
-                }
-                else
-                {
-                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} MainWindow gave up waiting for App services after {attempts} attempts\n");
-                }
+                await SetupSiteManagerViewModel(app, siteManagerView);
             }
 
-            // Ensure we have a VM reference (maybe set by the view fallback)
-            if (siteManagerView != null)
-                _siteManagerViewModel ??= siteManagerView.DataContext as SiteManagerViewModel;
-
-            // Load sites if we have a ViewModel
-            if (_siteManagerViewModel != null)
-                await _siteManagerViewModel.LoadSitesAsync();
-
-            // Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent
-            try
-            {
-                if (app?.SiteRepository != null && _siteManagerViewModel != null && _siteManagerViewModel.Sites.Count == 0)
-                {
-                    var demo = new SiteProfile
-                    {
-                        Name = "Demo FTP",
-                        Protocol = "FTP",
-                        Host = "ftp.example.com",
-                        Port = 21,
-                        Username = "anonymous",
-                        DefaultRemotePath = "/",
-                        DefaultLocalPath = string.Empty
-                    };
-
-                    var id = await app.SiteRepository.InsertAsync(demo);
-                    demo.Id = id;
-                    System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo site inserted with ID {id}\n");
-
-                    // Reload the VM's sites so the UI updates
-                    await _siteManagerViewModel.LoadSitesAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
-            }
+            await SeedDemoSiteIfNeededAsync(app, _siteManagerViewModel);
         }
         catch (Exception ex)
         {
@@ -118,6 +54,88 @@ public partial class MainWindow : Window
         }
     }
 
+    private async Task WaitForAppServicesInitialization(App? app)
+    {
+        var attempts = 0;
+        while ((app?.SiteRepository == null || app.CredentialStore == null || app.AppPaths == null || app.Services == null) && attempts < 100)
+        {
+            await Task.Delay(100);
+            attempts++;
+            app = Application.Current as App;
+        }
+    }
+
+    private async Task SetupSiteManagerViewModel(App? app, SiteManagerView siteManagerView)
+    {
+        int attempts = 0; // Ensure attempts is initialized
+
+        if (app?.SiteRepository != null && app.CredentialStore != null && app.AppPaths != null && app.Services != null)
+        {
+            if (siteManagerView.DataContext == null)
+            {
+                var logger = app.Services.GetService<ILogger<SiteManagerViewModel>>();
+                _siteManagerViewModel = new SiteManagerViewModel(app.SiteRepository, app.CredentialStore, app.AppPaths, logger);
+                siteManagerView.DataContext = _siteManagerViewModel;
+                // Load sites with the established site repository
+                await _siteManagerViewModel.LoadSitesAsync();
+                File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow set DataContext after {attempts} attempts\n");
+            }
+            else
+            {
+                File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow found existing DataContext (view fallback)\n");
+            }
+        }
+        else
+        {
+            File.AppendAllText("debug_cmd_states.log", $"{DateTime.Now:O} MainWindow gave up waiting for App services after {attempts} attempts\n");
+        }
+
+        // Ensure we have a VM reference (maybe set by the view fallback)
+        if (siteManagerView != null)
+            _siteManagerViewModel ??= siteManagerView.DataContext as SiteManagerViewModel;
+
+        // Load sites if we have a ViewModel
+        if (_siteManagerViewModel != null)
+            await _siteManagerViewModel.LoadSitesAsync();
+    }
+
+    /// <summary>
+    /// Seed a demo site when no sites exist (first-run friendly). This is safe and idempotent.
+    /// This method encapsulates data initialization concerns away from the UI initialization flow.
+    /// </summary>
+    /// <param name="app">The current application instance providing access to the site repository.</param>
+    /// <param name="siteManagerViewModel">The site manager view model used to inspect and reload sites.</param>
+    private static async Task SeedDemoSiteIfNeededAsync(App? app, SiteManagerViewModel? siteManagerViewModel)
+    {
+        try
+        {
+            if (app?.SiteRepository != null && siteManagerViewModel != null && siteManagerViewModel.Sites.Count == 0)
+            {
+                var demo = new SiteProfile
+                {
+                    Name = "Demo FTP",
+                    Protocol = "FTP",
+                    Host = "ftp.example.com",
+                    Port = 21,
+                    Username = "anonymous",
+                    DefaultRemotePath = "/",
+                    DefaultLocalPath = string.Empty
+                };
+
+                var id = await app.SiteRepository.InsertAsync(demo);
+                demo.Id = id;
+                System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo site inserted with ID {id}\n");
+
+                // Reload the VM's sites so the UI updates
+                await siteManagerViewModel.LoadSitesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.IO.File.AppendAllText(@"C:\dev-priv\FileTransferino\debug_cmd_states.log", $"{DateTime.Now:O} Demo seed failed: {ex.Message}\n");
+        }
+    }
+    
     private void ShowWelcomeOverlay()
     {
         var overlay = this.FindControl<Border>("WelcomeOverlay");
@@ -193,38 +211,36 @@ public partial class MainWindow : Window
     {
         var app = Application.Current as App;
         var themeService = app?.ThemeService;
-        
+
         if (themeService == null)
             return;
 
         // Pass themeService and current theme id for preview/restore support
         var viewModel = new CommandPaletteViewModel(themeService, themeService.CurrentThemeId);
-        
-        // Register theme submenu as a single top-level entry
-        var themeCommands = new List<PaletteCommand>();
+
+        // Register theme commands directly in the outer menu
         foreach (var theme in themeService.GetThemes())
         {
             var themeId = theme.Id; // Capture for closure
-            themeCommands.Add(new PaletteCommand
+            viewModel.RegisterCommand(new PaletteCommand
             {
                 Name = theme.DisplayName,
-                Category = "Theme",
+                Category = "Themes", // Place themes in the outer menu
                 Id = themeId,
                 Action = () => themeService.ApplyTheme(themeId)
             });
         }
 
-        // Top-level 'Themes' entry opens the submenu
+        // Register Site Manager command
         viewModel.RegisterCommand(new PaletteCommand
         {
-            Name = "Themes...",
-            Category = "Theme",
-            Action = () => viewModel.EnterSubmenu("Themes", themeCommands)
+            Name = "Open Site Manager",
+            Category = "Sites",
+            Action = () => OpenSiteManager()
         });
-        
+
         var paletteWindow = new CommandPaletteWindow(viewModel);
-        paletteWindow.Show(); // Use Show instead of ShowDialog so main window remains visible for preview
-        await Task.CompletedTask;
+        await paletteWindow.ShowDialog(this);
     }
 
     private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
@@ -251,5 +267,13 @@ public partial class MainWindow : Window
     private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void OpenSiteManager()
+    {
+        // Placeholder implementation for opening the Site Manager
+        // Ensure this method is properly implemented
+        var siteManagerWindow = new SiteManagerWindow();
+        siteManagerWindow.ShowDialog(this);
     }
 }

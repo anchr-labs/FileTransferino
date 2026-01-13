@@ -2,6 +2,7 @@
 using Avalonia.Interactivity;
 using FileTransferino.App.ViewModels;
 using System;
+using Avalonia.Markup.Xaml;
 
 namespace FileTransferino.App.Views;
 
@@ -77,5 +78,27 @@ public partial class SiteManagerView : UserControl
         {
             System.Diagnostics.Debug.WriteLine($"OnLearnMoreClick error: {ex}");
         }
+    }
+
+    // Added a "Connect" button to the Site Manager UI
+    private void OnConnectClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            ViewModel?.ConnectToSite();
+            LogCommandStates();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"OnConnectClick error: {ex}");
+        }
+    }
+
+    // Ensure the Connect button is properly added to the layout
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+        var connectButton = this.FindControl<Button>("ConnectButton");
+        connectButton?.Click += OnConnectClick;
     }
 }

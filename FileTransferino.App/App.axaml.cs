@@ -115,9 +115,16 @@ public class App : Application
             // Step 5: Initialize repositories and services
             Debug.WriteLine("Initializing repositories...");
             _siteRepository = new SiteRepository(_dbBootstrapper.ConnectionString);
-#pragma warning disable CA1416 // Platform-specific - WindowsDpapiCredentialStore is intentionally Windows-only
-            _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
-#pragma warning restore CA1416
+
+            if (System.OperatingSystem.IsWindows())
+            {
+                _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
+            }
+            else
+            {
+                await ShowErrorAndExitAsync(desktop, "The credential store is only supported on Windows.");
+                return;
+            }
             Debug.WriteLine("Repositories initialized.");
 
             // Register repositories in DI
