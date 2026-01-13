@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="FileTransferino.Mobile.Android/FileTransferino.Mobile.Android.csproj" />
+  <Project Path="FileTransferino.Mobile.Browser/FileTransferino.Mobile.Browser.csproj" />
+  <Project Path="FileTransferino.Mobile.Desktop/FileTransferino.Mobile.Desktop.csproj" />
+  <Project Path="FileTransferino.Mobile.iOS/FileTransferino.Mobile.iOS.csproj" />
+  <Project Path="FileTransferino.Mobile/FileTransferino.Mobile.csproj" />
+</Solution>

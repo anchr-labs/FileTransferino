@@ -23,7 +23,7 @@ dotnet build FileTransferino.Desktop.slnf
 
 **Build the entire solution (includes Mobile - requires SDKs):**
 ```powershell
-dotnet build FileTransferino.sln
+dotnet build FileTransferino.slnx
 ```
 ⚠️ Note: Building the full solution requires Android SDK API 36, iOS SDK, and WebAssembly tools. Use `FileTransferino.Desktop.slnf` for desktop development.
 
@@ -44,7 +44,7 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 
 **Restore NuGet packages:**
 ```powershell
-dotnet restore FileTransferino.sln
+dotnet restore FileTransferino.slnx
 ```
 
 ---
@@ -70,7 +70,7 @@ When adding a new project to the solution:
 
 2. Add to solution:
    ```powershell
-   dotnet sln FileTransferino.sln add ProjectName\ProjectName.csproj
+   dotnet sln FileTransferino.slnx add ProjectName\ProjectName.csproj
    ```
 
 3. Add references if needed:
@@ -86,12 +86,12 @@ When adding a new project to the solution:
 
 **Run all tests (when test projects exist):**
 ```powershell
-dotnet test FileTransferino.sln
+dotnet test FileTransferino.slnx
 ```
 
 **Run tests with verbose output:**
 ```powershell
-dotnet test FileTransferino.sln --logger "console;verbosity=detailed"
+dotnet test FileTransferino.slnx --logger "console;verbosity=detailed"
 ```
 
 ---
@@ -100,12 +100,12 @@ dotnet test FileTransferino.sln --logger "console;verbosity=detailed"
 
 **List all projects in solution:**
 ```powershell
-dotnet sln FileTransferino.sln list
+dotnet sln FileTransferino.slnx list
 ```
 
 **Check for errors:**
 ```powershell
-dotnet build FileTransferino.sln --no-incremental
+dotnet build FileTransferino.slnx --no-incremental
 ```
 
 ---
@@ -125,7 +125,7 @@ dotnet list reference
 
 **Format code:**
 ```powershell
-dotnet format FileTransferino.sln
+dotnet format FileTransferino.slnx
 ```
 
 ---
@@ -133,7 +133,7 @@ dotnet format FileTransferino.sln
 ### 🚀 Git Workflow
 
 **Before committing:**
-1. Ensure solution builds: `dotnet build FileTransferino.sln`
+1. Ensure solution builds: `dotnet build FileTransferino.slnx`
 2. Update documentation if project structure changed
 3. Review changes: `git diff`
 4. Stage changes: `git add .`

@@ -44,7 +44,7 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 #### Option 4: Build Everything (Will Fail Without SDKs)
 This will attempt to build ALL projects including Android/iOS/Browser:
 ```powershell
-dotnet build FileTransferino.sln
+dotnet build FileTransferino.slnx
 ```
 ⚠️ **Warning**: This will fail with Android SDK errors unless you have all mobile SDKs installed.
 
@@ -76,7 +76,7 @@ dotnet build FileTransferino.Mobile\FileTransferino.Mobile.Browser\FileTransferi
 
 If you want to re-enable mobile projects to build automatically with the solution:
 
-1. Open `FileTransferino.sln` in a text editor
+1. Open `FileTransferino.slnx` in a text editor
 2. Find the project GUID entries for the mobile projects
 3. Add back the `.Build.0` lines that were removed
 
