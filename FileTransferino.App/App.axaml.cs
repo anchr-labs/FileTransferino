@@ -29,6 +29,7 @@ public class App : Application
     public ISiteRepository? SiteRepository => _siteRepository;
     public ICredentialStore? CredentialStore => _credentialStore;
     public IServiceProvider? Services => _serviceProvider;
+    public AppPaths? AppPaths => _appPaths;
 
     public override void Initialize()
     {
@@ -80,6 +81,7 @@ public class App : Application
             // Step 2: Load settings
             Debug.WriteLine("Loading settings...");
             _settingsStore = new SettingsStore(_appPaths);
+
             _settings = await _settingsStore.LoadAsync();
             Debug.WriteLine($"Settings loaded. FirstRunUtc: {_settings.FirstRunUtc}, LastRunUtc: {_settings.LastRunUtc}");
 
@@ -93,7 +95,7 @@ public class App : Application
             _themeService = new ThemeService(this, _settingsStore, _settings);
             
             // Apply theme from settings (or default if empty)
-            var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Default" : _settings.ActiveThemeId;
+            var themeId = string.IsNullOrWhiteSpace(_settings.ActiveThemeId) ? "Light" : _settings.ActiveThemeId;
             _themeService.ApplyTheme(themeId);
             Debug.WriteLine($"Theme applied: {themeId}");
 
@@ -113,16 +115,25 @@ public class App : Application
             // Step 5: Initialize repositories and services
             Debug.WriteLine("Initializing repositories...");
             _siteRepository = new SiteRepository(_dbBootstrapper.ConnectionString);
-            _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
+
+            if (System.OperatingSystem.IsWindows())
+            {
+                _credentialStore = new WindowsDpapiCredentialStore(_appPaths);
+            }
+            else
+            {
+                await ShowErrorAndExitAsync(desktop, "The credential store is only supported on Windows.");
+                return;
+            }
             Debug.WriteLine("Repositories initialized.");
 
             // Register repositories in DI
             services.AddSingleton(_siteRepository);
             services.AddSingleton(_credentialStore);
-            
+
             // Build service provider
             _serviceProvider = services.BuildServiceProvider();
-            
+
             var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
             logger.LogInformation("Application initialized successfully");
 
@@ -135,7 +146,7 @@ public class App : Application
         }
     }
 
-    private async Task ShowErrorAndExitAsync(IClassicDesktopStyleApplicationLifetime desktop, string message)
+    private static async Task ShowErrorAndExitAsync(IClassicDesktopStyleApplicationLifetime desktop, string message)
     {
         Debug.WriteLine($"FATAL: {message}");
 

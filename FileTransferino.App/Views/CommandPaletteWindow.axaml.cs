@@ -8,34 +8,33 @@ namespace FileTransferino.App.Views;
 
 public partial class CommandPaletteWindow : Window
 {
-    private readonly CommandPaletteViewModel _viewModel;
+    private CommandPaletteViewModel? _viewModel;
     private ListBox? _list;
     private TextBox? _searchBox;
+    private bool _selectionConfirmed;
 
-    // Parameterless ctor required by XAML loader
+    /// <summary>Parameterless constructor for XAML designer. Theme preview will not work at runtime without ThemeService.</summary>
     public CommandPaletteWindow() : this(new CommandPaletteViewModel()) { }
-
+    
     public CommandPaletteWindow(CommandPaletteViewModel viewModel)
     {
-        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-        DataContext = _viewModel;
-        
         InitializeComponent();
         
         _searchBox = this.FindControl<TextBox>("SearchBox");
         _list = this.FindControl<ListBox>("CommandList");
         
+        // Set initial ViewModel
+        SetViewModel(viewModel);
+        
         // Focus search box when window opens
         Opened += (_, _) =>
         {
             _searchBox?.Focus();
+            _selectionConfirmed = false; // Reset confirmation flag on each open
         };
         
         // Close when clicking outside or losing focus
-        Deactivated += (_, _) =>
-        {
-            Close();
-        };
+        Deactivated += OnDeactivated;
         
         // Handle keyboard shortcuts at window level
         KeyDown += OnKeyDown;
@@ -45,26 +44,12 @@ public partial class CommandPaletteWindow : Window
         {
             _searchBox.KeyDown += OnSearchBoxKeyDown;
         }
-
+        
         // Wire up list interactions
         if (_list != null)
         {
-            // Selection changes should preview the theme in main window
-            _list.SelectionChanged += (_, _) =>
-            {
-                var cmd = _viewModel.SelectedCommand;
-                if (cmd != null)
-                {
-                    _viewModel.PreviewCommand(cmd);
-                }
-            };
-
             // Single left-click applies immediately but keep dialog open
-            _list.DoubleTapped += (_, _) =>
-            {
-                var cmd = _viewModel.SelectedCommand;
-                cmd?.Action.Invoke();
-            };
+            _list.DoubleTapped += OnListDoubleTapped;
             
             // Also handle single click on items
             _list.PointerPressed += OnListPointerPressed;
@@ -74,9 +59,101 @@ public partial class CommandPaletteWindow : Window
         }
     }
 
+    protected override void OnPropertyChanged(Avalonia.AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        
+        // Watch for DataContext changes to rewire ViewModel
+        if (change.Property == DataContextProperty && change.NewValue is CommandPaletteViewModel vm && vm != _viewModel)
+        {
+            SetViewModel(vm);
+        }
+    }
+
+    private void SetViewModel(CommandPaletteViewModel viewModel)
+    {
+        // Unwire old VM if exists
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+        }
+
+        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        DataContext = _viewModel;
+        _selectionConfirmed = false;
+
+        // Wire up new VM events
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        
+        // Wire up list selection to preview if list exists
+        if (_list != null)
+        {
+            // Remove old handler to avoid duplicates
+            _list.SelectionChanged -= OnListSelectionChanged;
+            _list.SelectionChanged += OnListSelectionChanged;
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(_viewModel.SelectedCommand) && _list != null && _viewModel != null)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var sel = _viewModel.SelectedCommand;
+                if (sel != null)
+                {
+                    _list.ScrollIntoView(sel);
+                }
+            }, DispatcherPriority.Background);
+        }
+    }
+
+    private void OnListSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel == null) return;
+        
+        var cmd = _viewModel.SelectedCommand;
+        if (cmd != null)
+        {
+            // Use debounce to avoid rapid flicker, but allow preview on keyboard nav
+            _viewModel.PreviewCommandDebounced(cmd);
+        }
+    }
+
+    private void OnDeactivated(object? sender, EventArgs e)
+    {
+        // Restore original theme when closing without confirming
+        if (!_selectionConfirmed)
+        {
+            _viewModel?.RestoreOriginalTheme();
+        }
+        // Hide instead of Close to avoid unexpectedly affecting owner window state
+        Hide();
+    }
+
+    private void OnListDoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel == null) return;
+        
+        var cmd = _viewModel.SelectedCommand;
+        if (cmd == null)
+            return;
+
+        // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
+        _viewModel.ExecuteSelectedCommand();
+
+        // If this was a theme command (has Id) or a direct action, hide the palette
+        if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
+        {
+            _selectionConfirmed = true;
+            Hide();
+        }
+    }
+
     private void OnListPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_list == null) return;
+        if (_list == null || _viewModel == null) return;
         
         // Find which item is under the pointer
         var point = e.GetPosition(_list);
@@ -97,13 +174,13 @@ public partial class CommandPaletteWindow : Window
 
     private void OnSearchBoxKeyDown(object? sender, KeyEventArgs e)
     {
-        if (_list == null || _viewModel.FilteredCommands.Count == 0)
+        if (_list == null || _viewModel == null || _viewModel.FilteredCommands.Count == 0)
             return;
 
         if (e.Key == Key.Down)
         {
             e.Handled = true;
-            
+
             // Move selection down
             var currentIndex = _list.SelectedIndex;
             if (currentIndex < _viewModel.FilteredCommands.Count - 1)
@@ -114,21 +191,21 @@ public partial class CommandPaletteWindow : Window
             {
                 _list.SelectedIndex = 0;
             }
-            
+
             // Focus the list so arrow keys continue to work
             _list.Focus();
         }
         else if (e.Key == Key.Up)
         {
             e.Handled = true;
-            
+
             // Move selection up
             var currentIndex = _list.SelectedIndex;
             if (currentIndex > 0)
             {
                 _list.SelectedIndex = currentIndex - 1;
             }
-            
+
             // Focus the list
             _list.Focus();
         }
@@ -136,23 +213,51 @@ public partial class CommandPaletteWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (_viewModel == null) return;
+
         if (e.Key == Key.Escape)
         {
+            if (_viewModel.InSubmenu)
+            {
+                // exit submenu and keep palette open
+                _viewModel.ExitSubmenu();
+                e.Handled = true;
+                return;
+            }
+
             // Restore theme to original state if possible
             _viewModel.RestoreOriginalTheme();
-            Close();
-        } else if (e.Key == Key.Enter)
+            Hide(); // Hide instead of Close to allow reuse
+        }
+        else if (e.Key == Key.Enter)
         {
+            var selectedCommand = _viewModel.SelectedCommand;
+
+            // Execute the selected command
             _viewModel.ExecuteSelectedCommand();
-            Close();
+
+            // If the executed command opened a submenu (e.g. 'Themes...') and it did not
+            // represent an actionable theme (no Id), keep the palette open. Otherwise
+            // treat it as a confirmation and hide.
+            if (_viewModel.InSubmenu && string.IsNullOrEmpty(selectedCommand?.Id))
+            {
+                e.Handled = true; // remain in submenu
+                return;
+            }
+
+            // Confirm selection and hide (not close, to allow reuse)
+            _selectionConfirmed = true;
+            Hide();
         }
     }
 
     private void OnListPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (_viewModel == null) return;
+
         // Only handle left-button presses
         var props = e.GetCurrentPoint(this).Properties;
-        if (!props.IsLeftButtonPressed) 
+        if (!props.IsLeftButtonPressed)
             return;
 
         // Ignore clicks that originate from scroll bar controls
@@ -164,11 +269,42 @@ public partial class CommandPaletteWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             var cmd = _viewModel.SelectedCommand;
-            if (cmd != null)
+            if (cmd == null)
+                return;
+
+            // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
+            _viewModel.ExecuteSelectedCommand();
+
+            // If this was a theme command (has Id) or a direct action, hide the palette
+            if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
             {
-                // Cancel pending previews and execute immediately
-                _viewModel.ExecuteSelectedCommand();
+                _selectionConfirmed = true;
+                Hide();
             }
-        }, DispatcherPriority.Background);
+        });
+    }
+
+    private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Allow dragging the window by the title bar
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Restore theme if not confirmed
+        if (!_selectionConfirmed)
+        {
+            _viewModel?.RestoreOriginalTheme();
+        }
+        Hide(); // Hide instead of Close to allow reuse
     }
 }

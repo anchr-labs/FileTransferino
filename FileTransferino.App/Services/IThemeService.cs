@@ -26,7 +26,23 @@ public interface IThemeService
     string CurrentThemeId { get; }
     
     /// <summary>
+    /// Gets or sets the last visited theme id (in command palette submenu). Optional.
+    /// Persisted via settings.
+    /// </summary>
+    string? LastVisitedThemeId { get; set; }
+
+    /// <summary>
     /// Applies a theme by its ID.
     /// </summary>
     void ApplyTheme(string themeId);
+
+    /// <summary>
+    /// Preview a theme by its ID without persisting the change.
+    /// </summary>
+    void PreviewTheme(string themeId);
+
+    /// <summary>
+    /// Re-apply the persisted active theme without changing persisted settings.
+    /// </summary>
+    void RestoreActiveTheme();
 }

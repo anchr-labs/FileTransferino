@@ -12,6 +12,7 @@
     <Color x:Key="AccentHoverColor">#005A9E</Color>
     <Color x:Key="ErrorColor">#D13438</Color>
     <Color x:Key="SuccessColor">#107C10</Color>
+    <Color x:Key="InputBackgroundColor">#FFFFFF</Color>
     
     <!-- Brushes -->
     <SolidColorBrush x:Key="BackgroundBrush" Color="#FFFFFF" />
@@ -23,5 +24,16 @@
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#005A9E" />
     <SolidColorBrush x:Key="ErrorBrush" Color="#D13438" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#107C10" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="LabelBrush" Color="#1A1A1A" />
+    
+    <!-- Fluent Theme Overrides for ListBox selection colors -->
+    <Color x:Key="SystemAccentColor">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark1">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark2">#0078D4</Color>
+    <Color x:Key="SystemAccentColorDark3">#0078D4</Color>
+    <Color x:Key="SystemAccentColorLight1">#005A9E</Color>
+    <Color x:Key="SystemAccentColorLight2">#005A9E</Color>
+    <Color x:Key="SystemAccentColorLight3">#005A9E</Color>
     
 </ResourceDictionary>

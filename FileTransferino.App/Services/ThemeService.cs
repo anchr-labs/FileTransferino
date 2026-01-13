@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 using FileTransferino.Core.Models;
 using FileTransferino.Infrastructure;
 
@@ -9,7 +10,7 @@ namespace FileTransferino.App.Services;
 /// <summary>
 /// Implementation of theme service that manages theme switching at runtime.
 /// </summary>
-public sealed class ThemeService(
+public sealed   class ThemeService(
     Application app,
     SettingsStore settingsStore,
     AppSettings settings) : IThemeService
@@ -58,6 +59,23 @@ public sealed class ThemeService(
 
     public string CurrentThemeId { get; private set; } = settings.ActiveThemeId;
 
+    public string? LastVisitedThemeId
+    {
+        get => settings.LastVisitedThemeId;
+        set
+        {
+            settings.LastVisitedThemeId = value;
+            try
+            {
+                settingsStore.Save(settings);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to persist LastVisitedThemeId: {ex}");
+            }
+        }
+    }
+
     public void ApplyTheme(string themeId)
     {
         var theme = BuiltInThemes.FirstOrDefault(t => t.Id == themeId);
@@ -87,6 +105,9 @@ public sealed class ThemeService(
             _currentThemeResource = newThemeResource;
             CurrentThemeId = themeId;
 
+            // Update application-level ThemeVariant so standard controls (and Popups) switch base styles
+            app.RequestedThemeVariant = themeId == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
+
             // Persist to settings
             settings.ActiveThemeId = themeId;
             settingsStore.Save(settings);
@@ -96,6 +117,78 @@ public sealed class ThemeService(
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to apply theme '{themeId}': {ex.Message}");
+        }
+    }
+
+    public void PreviewTheme(string themeId)
+    {
+        var theme = BuiltInThemes.FirstOrDefault(t => t.Id == themeId);
+        if (theme == null)
+        {
+            Debug.WriteLine($"Theme '{themeId}' not found for preview.");
+            return;
+        }
+
+        try
+        {
+            // Remove existing theme resource if present
+            if (_currentThemeResource != null)
+            {
+                app.Resources.MergedDictionaries.Remove(_currentThemeResource);
+                _currentThemeResource = null;
+            }
+
+            // Load and apply new theme - must set Source property
+            var newThemeResource = new ResourceInclude(new Uri("avares://FileTransferino.App/"))
+            {
+                Source = new Uri(theme.ResourcePath)
+            };
+
+            app.Resources.MergedDictionaries.Add(newThemeResource);
+            _currentThemeResource = newThemeResource;
+
+            // Updated variant for preview
+            app.RequestedThemeVariant = themeId == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
+
+            // Do NOT update CurrentThemeId or persist to settings - this is just a preview
+            Debug.WriteLine($"Theme previewed (not persisted): {theme.DisplayName}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to preview theme '{themeId}': {ex.Message}");
+        }
+    }
+
+    public void RestoreActiveTheme()
+    {
+        // Re-apply the currently persisted theme id without modifying settings
+        try
+        {
+            var id = CurrentThemeId;
+            if (string.IsNullOrWhiteSpace(id))
+                id = "Light";
+
+            var theme = BuiltInThemes.FirstOrDefault(t => t.Id == id) ?? BuiltInThemes.First(t => t.Id == "Light");
+
+            if (_currentThemeResource != null)
+            {
+                app.Resources.MergedDictionaries.Remove(_currentThemeResource);
+                _currentThemeResource = null;
+            }
+
+            var resource = new ResourceInclude(new Uri("avares://FileTransferino.App/")) { Source = new Uri(theme.ResourcePath) };
+            app.Resources.MergedDictionaries.Add(resource);
+            _currentThemeResource = resource;
+
+            // Restore variant
+            app.RequestedThemeVariant = id == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
+
+            // Do not persist or change CurrentThemeId here
+            Debug.WriteLine($"Restored active theme: {theme.DisplayName}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to restore active theme: {ex.Message}");
         }
     }
 }

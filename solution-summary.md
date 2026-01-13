@@ -1,6 +1,6 @@
-﻿# FileTransferino Solution - Status Summary
+# FileTransferino Solution - Status Summary
 
-**Last Updated:** January 10, 2026 (Slice 1 Complete)
+**Last Updated:** January 13, 2026 (UX Polish & Bug Fixes)
 
 ## Solution Overview
 
@@ -45,6 +45,25 @@ The **FileTransferino.sln** is a .NET 10 solution for a File Transfer applicatio
 - **Dependencies:** None
 - **Status:** ✅ Built successfully
 
+### 6. FileTransferino.UI (Class Library)
+- **Type:** Class Library
+- **Framework:** .NET 10
+- **Purpose:** Shared UI components and controls
+- **Dependencies:** None
+- **Status:** ✅ Built successfully
+
+### 7. FileTransferino.Mobile (Mobile Application Suite)
+- **Type:** Mobile Application (Uno Platform)
+- **Frameworks:** .NET 10 (Multiple targets: Android, iOS, Browser, Desktop)
+- **Purpose:** Cross-platform mobile application
+- **Projects:**
+  - FileTransferino.Mobile (shared code)
+  - FileTransferino.Mobile.Android
+  - FileTransferino.Mobile.iOS
+  - FileTransferino.Mobile.Browser
+  - FileTransferino.Mobile.Desktop
+- **Status:** ⚠️ In development (Android requires JDK 21)
+
 ---
 
 ## Dependency Graph
@@ -52,9 +71,13 @@ The **FileTransferino.sln** is a .NET 10 solution for a File Transfer applicatio
 ```
 FileTransferino.App
     ├─→ FileTransferino.Core
-    ├─→ FileTransferino.Data ──→ FileTransferino.Infrastructure ──→ FileTransferino.Core
-    ├─→ FileTransferino.Security
-    └─→ FileTransferino.Infrastructure ──→ FileTransferino.Core
+    ├─→ FileTransferino.Data ──→ FileTransferino.Core, FileTransferino.Infrastructure
+    ├─→ FileTransferino.Security ──→ FileTransferino.Infrastructure
+    ├─→ FileTransferino.Infrastructure
+    └─→ FileTransferino.UI
+
+FileTransferino.Mobile
+    └─→ (separate mobile-specific dependencies)
 ```
 
 ✅ **No circular dependencies**
@@ -100,13 +123,53 @@ FileTransferino.App
   - GetThemes(), ApplyTheme(themeId), CurrentThemeId property
   - Swaps ResourceDictionary for instant UI updates
   - Persists ActiveThemeId via SettingsStore
-- ✅ **Command Palette** - Lightweight overlay (Ctrl+K)
+- ✅ **Command Palette** - Lightweight overlay (Ctrl+Space)
   - TextBox search with real-time filtering
   - ListBox of commands (Enter executes, Esc closes)
   - "Theme: <Name>" commands for each built-in theme
   - CommandPaletteViewModel with fuzzy search
+  - Real-time theme preview on arrow navigation
+  - Single-click theme application
+  - Debounced preview to avoid UI stutter
+  - **Single-instance window**: Reuses same window for better performance and position memory
+  - **Modeless display**: Prevents owner window minimization issues
+  - **Hide/Show lifecycle**: Window hides instead of closing to allow reuse
 - ✅ **App Integration** - Theme applied on startup from settings
-- ✅ **Ctrl+K Gesture** - Registered in MainWindow
+- ✅ **Ctrl+Space Gesture** - Registered in MainWindow
+
+### Slice 2 Site Manager (Completed)
+- ✅ **Database Schema** - 002_sites.sql migration
+  - Sites table (Id, Name, Protocol, Host, Port, Username, paths, CredentialKey, timestamps)
+  - Index on (Host, Port, Username) for efficient lookups
+- ✅ **Data Models** - SiteProfile in FileTransferino.Core
+  - Required properties: Name, Protocol, Host, Port
+  - Optional: Username, DefaultRemotePath, DefaultLocalPath, CredentialKey
+  - CreatedUtc, UpdatedUtc timestamps
+- ✅ **Repository Pattern** - ISiteRepository + SiteRepository (Dapper)
+  - GetAllAsync(), GetByIdAsync(id), InsertAsync(site), UpdateAsync(site), DeleteAsync(id)
+  - Async CRUD operations with SQLite
+- ✅ **Secure Credential Storage** - ICredentialStore + WindowsDpapiCredentialStore
+  - Windows DPAPI encryption (user-scoped)
+  - Encrypted files stored in {Root}/secrets/ folder
+  - SaveAsync(key, secret), GetAsync(key), DeleteAsync(key)
+  - Database stores only CredentialKey reference (never plaintext)
+- ✅ **Site Manager UI** - SiteManagerWindow + SiteManagerViewModel (MVVM)
+  - Left panel: ListBox of saved sites
+  - Right panel: Form fields (Name, Protocol dropdown, Host, Port, Username, Password, paths)
+  - Buttons: New, Save, Delete, Close
+  - Password handling: empty=keep existing, non-empty=update
+  - Protocol auto-sets default ports (FTP/FTPS=21, SFTP=22)
+  - **Theme Inheritance**: Uses DynamicResource to match user's selected theme
+  - Confirmation dialog for deletions
+  - Robust error handling with logging
+- ✅ **Command Palette Integration** - "Themes..." submenu (command palette remains for power users)
+  - Submenu navigation (Enter opens, Escape backs out)
+  - Theme preview in submenu without closing palette
+- ✅ **Adaptive Watermarks** - WatermarkBrush token per theme for placeholder text visibility
+- ✅ **Logging** - Structured logging with ILogger<T> and file logging
+  - errors.log in {Root}/logs/ folder
+  - Debug output for troubleshooting
+- ✅ **Code Quality** - Safe async void patterns with try-catch in event handlers
 
 ### Application Data Location
 ```
@@ -129,19 +192,22 @@ FileTransferino.App
 
 ## Build Results
 
-**Last Build:** Successful ✅
+**Last Build:** Successful ✅ (January 13, 2026)
 
 ```
-Build succeeded in 1.8s
-- FileTransferino.Security: 0.1s ✅
-- FileTransferino.Infrastructure: 0.1s ✅
+Build succeeded in 4.2s
 - FileTransferino.Core: 0.1s ✅
+- FileTransferino.UI: 0.1s ✅
+- FileTransferino.Infrastructure: 0.1s ✅
 - FileTransferino.Data: 0.1s ✅
-- FileTransferino.App: 1.1s ✅
+- FileTransferino.Security: 0.1s ✅
+- FileTransferino.Mobile: 0.1s ✅
+- FileTransferino.Mobile.Desktop: 0.1s ✅
+- FileTransferino.App: 3.3s ✅
 ```
 
 **Errors:** 0  
-**Warnings:** 1 (XAML loader warning - non-blocking)
+**Warnings:** 0
 
 ---
 

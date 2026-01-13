@@ -6,11 +6,23 @@ namespace FileTransferino.App.Views;
 
 public partial class SiteManagerWindow : Window
 {
-    private readonly SiteManagerViewModel _viewModel;
+    private readonly SiteManagerViewModel? _viewModel;
 
-    // Parameterless constructor for XAML loader
-    public SiteManagerWindow() : this(new SiteManagerViewModel(null!, null!)) { }
+    // Parameterless constructor for XAML loader / design-time tooling
+    public SiteManagerWindow()
+    {
+        if (Avalonia.Controls.Design.IsDesignMode)
+        {
+            // In design mode, initialize the UI without requiring a real view model
+            InitializeComponent();
+            return;
+        }
 
+        // At runtime, this constructor should not be used because it cannot provide
+        // the required dependencies for SiteManagerViewModel.
+        throw new InvalidOperationException(
+            "SiteManagerWindow must be constructed with a SiteManagerViewModel instance.");
+    }
     public SiteManagerWindow(SiteManagerViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
@@ -37,47 +49,63 @@ public partial class SiteManagerWindow : Window
             closeButton.Click += OnCloseClick;
         
         // Load sites when window opens
-        Opened += async (_, _) => await _viewModel.LoadSitesAsync();
+        Opened += async (_, _) =>
+        {
+            if (_viewModel != null)
+                await _viewModel.LoadSitesAsync();
+        };
     }
 
     private void OnNewClick(object? sender, RoutedEventArgs e)
     {
+        if (_viewModel == null) return;
         _viewModel.NewSite();
     }
 
     private async void OnSaveClick(object? sender, RoutedEventArgs e)
     {
-        var success = await _viewModel.SaveSiteAsync();
-        
-        if (!success)
+        try
         {
-            // Show error message
-            var messageBox = new Window
-            {
-                Title = "Error",
-                Width = 300,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new TextBlock
-                {
-                    Text = "Failed to save site. Please ensure Name and Host are filled.",
-                    TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-                    Margin = new Avalonia.Thickness(20),
-                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-                }
-            };
-            
-            await messageBox.ShowDialog(this);
+            if (_viewModel == null) return;
+
+            var success = await _viewModel.SaveSiteAsync();
+             
+             if (!success)
+             {
+                 // Show error message
+                 var messageBox = new Window
+                 {
+                     Title = "Error",
+                     Width = 300,
+                     Height = 150,
+                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                     Content = new TextBlock
+                     {
+                         Text = "Failed to save site. Please ensure Name and Host are filled.",
+                         TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                         Margin = new Avalonia.Thickness(20),
+                         VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                     }
+                 };
+                 
+                 await messageBox.ShowDialog(this);
+             }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving site: {ex}");
         }
     }
+ 
+     private async void OnDeleteClick(object? sender, RoutedEventArgs e)
+     {
+            if (_viewModel == null) return;
 
-    private async void OnDeleteClick(object? sender, RoutedEventArgs e)
-    {
-        var selected = _viewModel.SelectedSite;
-        if (selected == null)
-            return;
+            var selected = _viewModel.SelectedSite;
+         if (selected == null)
+             return;
 
-        var siteName = selected.Name;
+         var siteName = selected.Name;
 
         // Confirm deletion
         var yesButton = new Button { Content = "Yes", Width = 80 };
@@ -176,6 +204,25 @@ public partial class SiteManagerWindow : Window
     }
 
     private void OnCloseClick(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
+    private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        // Allow dragging the window by the title bar
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void MinimizeWindow(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void CloseWindowButton(object? sender, RoutedEventArgs e)
     {
         Close();
     }

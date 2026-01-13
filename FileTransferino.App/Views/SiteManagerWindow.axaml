@@ -7,76 +7,209 @@
         Width="800"
         Height="600"
         WindowStartupLocation="CenterOwner"
-        Background="#2D2D30">
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="30"
+        SystemDecorations="None">
 
     <Window.Styles>
-        <!-- Fixed color scheme for Site Manager - not affected by theme changes -->
+        <!-- Theme-driven color scheme: use the application's resource brushes so the window inherits the active theme -->
         <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}" />
         </Style>
-        
+
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#1E1E1E" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
-            <Setter Property="BorderBrush" Value="#3F3F46" />
-            <Setter Property="CaretBrush" Value="#E0E0E0" />
+            <!-- Use InputBackgroundBrush so input controls have a consistent themed background -->
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
         </Style>
-        
+
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+             <Setter Property="Background" Value="{TemplateBinding Background}" />
+        </Style>
+
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+
+        <!-- Fix ComboBox styling -->
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#1E1E1E" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
-            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+
+        <Style Selector="ComboBox:focus /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
         
+        <Style Selector="ComboBox:dropdownopen /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+        
+        <!-- Note: ComboBoxItem styles moved to App.axaml to target Popups correctly -->
+
         <Style Selector="NumericUpDown">
-            <Setter Property="Background" Value="#1E1E1E" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
-            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
         </Style>
-        
+
         <Style Selector="ListBox">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
         </Style>
-        
+
         <Style Selector="ListBoxItem">
-            <Setter Property="Foreground" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
-        
+
         <Style Selector="ListBoxItem:selected">
-            <Setter Property="Background" Value="#37373D" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
         </Style>
-        
+
+        <Style Selector="ListBoxItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+        </Style>
+
         <Style Selector="Button">
-            <Setter Property="Background" Value="#3F3F46" />
-            <Setter Property="Foreground" Value="#E0E0E0" />
-            <Setter Property="BorderBrush" Value="#555555" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="#505055" />
+            <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
         </Style>
-        
+
         <Style Selector="Border.card">
-            <Setter Property="Background" Value="#252526" />
-            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         </Style>
-        
+
         <Style Selector="TextBlock.secondary">
-            <Setter Property="Foreground" Value="#A0A0A0" />
+            <Setter Property="Foreground" Value="{DynamicResource LabelBrush}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}" />
         </Style>
     </Window.Styles>
 
-    <Grid Margin="20" RowDefinitions="*,Auto">
-        <!-- Main Content -->
-        <Grid Grid.Row="0" ColumnDefinitions="250,*">
-            <!-- Left: Site List -->
-            <Border Grid.Column="0" 
-                    Classes="card"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Padding="0"
+    <!-- Main border that wraps everything -->
+    <Border Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            ClipToBounds="True">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" Color="#000000" Opacity="0.3" OffsetX="0" OffsetY="4"/>
+        </Border.Effect>
+        <DockPanel>
+            <!-- Custom Title Bar -->
+            <Border DockPanel.Dock="Top" 
+                    Height="30" 
+                    Background="{DynamicResource SurfaceBrush}"
+                    x:Name="TitleBar"
+                    PointerPressed="OnTitleBarPointerPressed">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <!-- Icon and Title -->
+                    <StackPanel Grid.Column="0" 
+                                Orientation="Horizontal" 
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="🌐" 
+                                   FontSize="14" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
+                        <TextBlock Text="Site Manager" 
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Window Controls -->
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal"
+                                Spacing="0">
+                        <Button Content="−" 
+                                Click="MinimizeWindow" 
+                                Width="45" 
+                                Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}"
+                                FontSize="16"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Padding="0">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                        <Button Content="✕" 
+                                Click="CloseWindowButton" 
+                                Width="45" 
+                                Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}"
+                                FontSize="14"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Padding="0">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="#C42B1C" />
+                                </Style>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Foreground" Value="White" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content Area -->
+            <Grid Margin="20" RowDefinitions="*,Auto">
+                <!-- Main Content -->
+                <Grid Grid.Row="0" ColumnDefinitions="250,*">
+                    <!-- Left: Site List -->
+                    <Border Grid.Column="0" 
+                            Classes="card"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="0"
                     Margin="0,0,10,0">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top"
@@ -113,17 +246,17 @@
                     Classes="card"
                     BorderThickness="1"
                     CornerRadius="4"
-                    Padding="20">
+                    Padding="20,20,8,20">
                 <ScrollViewer>
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="16" Margin="0,0,12,0">
                         <TextBlock Text="Site Configuration"
                                    FontWeight="SemiBold"
-                                   FontSize="16" />
+                                   FontSize="{DynamicResource FontSizeLarge}" />
 
                         <!-- Name -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Site Name *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Name}" 
                                      Watermark="My FTP Server" />
                         </StackPanel>
@@ -131,7 +264,7 @@
                         <!-- Protocol -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Protocol *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <ComboBox SelectedItem="{Binding Protocol}"
                                       HorizontalAlignment="Stretch">
                                 <ComboBoxItem Content="FTP" />
@@ -143,7 +276,7 @@
                         <!-- Host -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Host *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Host}"
                                      Watermark="ftp.example.com" />
                         </StackPanel>
@@ -151,7 +284,7 @@
                         <!-- Port -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Port *"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <NumericUpDown Value="{Binding Port}"
                                           Minimum="1"
                                           Maximum="65535"
@@ -162,7 +295,7 @@
                         <!-- Username -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Username"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Username}"
                                      Watermark="username" />
                         </StackPanel>
@@ -170,20 +303,20 @@
                         <!-- Password -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Password"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding Password}"
                                      Watermark="Leave empty to keep existing"
                                      PasswordChar="•" />
                             <TextBlock Text="Tip: Leave empty to keep current password when editing"
                                        FontSize="11"
                                        FontStyle="Italic"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                         </StackPanel>
 
                         <!-- Default Remote Path -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Default Remote Path"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding DefaultRemotePath}"
                                      Watermark="/" />
                         </StackPanel>
@@ -191,7 +324,7 @@
                         <!-- Default Local Path -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Default Local Path"
-                                       Classes="secondary" />
+                                       Foreground="{DynamicResource LabelBrush}" />
                             <TextBox Text="{Binding DefaultLocalPath}"
                                      Watermark="~/Downloads" />
                         </StackPanel>
@@ -220,4 +353,6 @@
                     x:Name="CloseButton" />
         </StackPanel>
     </Grid>
+        </DockPanel>
+    </Border>
 </Window>

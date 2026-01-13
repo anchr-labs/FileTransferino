@@ -2,6 +2,8 @@
     <!-- https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management -->
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <!-- Suppress NU1507 warning about multiple package sources -->
+        <NoWarn>$(NoWarn);NU1507</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <!-- Avalonia packages -->
