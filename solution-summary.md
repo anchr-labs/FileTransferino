@@ -1,6 +1,6 @@
 # FileTransferino Solution - Status Summary
 
-**Last Updated:** January 11, 2026 (Slice 2 Complete)
+**Last Updated:** January 13, 2026 (UX Polish & Bug Fixes)
 
 ## Solution Overview
 
@@ -123,7 +123,7 @@ FileTransferino.Mobile
   - GetThemes(), ApplyTheme(themeId), CurrentThemeId property
   - Swaps ResourceDictionary for instant UI updates
   - Persists ActiveThemeId via SettingsStore
-- ✅ **Command Palette** - Lightweight overlay (Ctrl+K)
+- ✅ **Command Palette** - Lightweight overlay (Ctrl+Space)
   - TextBox search with real-time filtering
   - ListBox of commands (Enter executes, Esc closes)
   - "Theme: <Name>" commands for each built-in theme
@@ -131,8 +131,11 @@ FileTransferino.Mobile
   - Real-time theme preview on arrow navigation
   - Single-click theme application
   - Debounced preview to avoid UI stutter
+  - **Single-instance window**: Reuses same window for better performance and position memory
+  - **Modeless display**: Prevents owner window minimization issues
+  - **Hide/Show lifecycle**: Window hides instead of closing to allow reuse
 - ✅ **App Integration** - Theme applied on startup from settings
-- ✅ **Ctrl+K Gesture** - Registered in MainWindow
+- ✅ **Ctrl+Space Gesture** - Registered in MainWindow
 
 ### Slice 2 Site Manager (Completed)
 - ✅ **Database Schema** - 002_sites.sql migration
@@ -189,7 +192,7 @@ FileTransferino.Mobile
 
 ## Build Results
 
-**Last Build:** Successful ✅ (January 11, 2026)
+**Last Build:** Successful ✅ (January 13, 2026)
 
 ```
 Build succeeded in 4.2s
@@ -197,8 +200,10 @@ Build succeeded in 4.2s
 - FileTransferino.UI: 0.1s ✅
 - FileTransferino.Infrastructure: 0.1s ✅
 - FileTransferino.Data: 0.1s ✅
-- FileTransferino.Security: 0.2s ✅
-- FileTransferino.App: 3.1s ✅
+- FileTransferino.Security: 0.1s ✅
+- FileTransferino.Mobile: 0.1s ✅
+- FileTransferino.Mobile.Desktop: 0.1s ✅
+- FileTransferino.App: 3.3s ✅
 ```
 
 **Errors:** 0  

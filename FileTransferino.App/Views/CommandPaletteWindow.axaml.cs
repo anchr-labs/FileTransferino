@@ -8,39 +8,33 @@ namespace FileTransferino.App.Views;
 
 public partial class CommandPaletteWindow : Window
 {
-    private readonly CommandPaletteViewModel _viewModel;
+    private CommandPaletteViewModel? _viewModel;
     private ListBox? _list;
     private TextBox? _searchBox;
     private bool _selectionConfirmed;
 
     /// <summary>Parameterless constructor for XAML designer. Theme preview will not work at runtime without ThemeService.</summary>
     public CommandPaletteWindow() : this(new CommandPaletteViewModel()) { }
+    
     public CommandPaletteWindow(CommandPaletteViewModel viewModel)
     {
-        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-        DataContext = _viewModel;
-        
         InitializeComponent();
         
         _searchBox = this.FindControl<TextBox>("SearchBox");
         _list = this.FindControl<ListBox>("CommandList");
         
+        // Set initial ViewModel
+        SetViewModel(viewModel);
+        
         // Focus search box when window opens
         Opened += (_, _) =>
         {
             _searchBox?.Focus();
+            _selectionConfirmed = false; // Reset confirmation flag on each open
         };
         
         // Close when clicking outside or losing focus
-        Deactivated += (_, _) =>
-        {
-            // Restore original theme when closing without confirming
-            if (!_selectionConfirmed)
-            {
-                _viewModel.RestoreOriginalTheme();
-            }
-            Close();
-        };
+        Deactivated += OnDeactivated;
         
         // Handle keyboard shortcuts at window level
         KeyDown += OnKeyDown;
@@ -54,50 +48,8 @@ public partial class CommandPaletteWindow : Window
         // Wire up list interactions
         if (_list != null)
         {
-            // Ensure we scroll to the selected item when the VM updates selection
-            _viewModel.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(_viewModel.SelectedCommand))
-                {
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        var sel = _viewModel.SelectedCommand;
-                        if (sel != null)
-                        {
-                            _list.ScrollIntoView(sel);
-                        }
-                    }, DispatcherPriority.Background);
-                }
-            };
-
-            // Selection changes should preview the theme in main window
-            _list.SelectionChanged += (_, _) =>
-            {
-                var cmd = _viewModel.SelectedCommand;
-                if (cmd != null)
-                {
-                    // Use debounce to avoid rapid flicker, but allow preview on keyboard nav
-                    _viewModel.PreviewCommandDebounced(cmd);
-                }
-            };
-
             // Single left-click applies immediately but keep dialog open
-            _list.DoubleTapped += (_, _) =>
-            {
-                var cmd = _viewModel.SelectedCommand;
-                if (cmd == null)
-                    return;
-
-                // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
-                _viewModel.ExecuteSelectedCommand();
-
-                // If this was a theme command (has Id) or a direct action, close the palette
-                if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
-                {
-                    _selectionConfirmed = true;
-                    Close();
-                }
-            };
+            _list.DoubleTapped += OnListDoubleTapped;
             
             // Also handle single click on items
             _list.PointerPressed += OnListPointerPressed;
@@ -107,9 +59,101 @@ public partial class CommandPaletteWindow : Window
         }
     }
 
+    protected override void OnPropertyChanged(Avalonia.AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        
+        // Watch for DataContext changes to rewire ViewModel
+        if (change.Property == DataContextProperty && change.NewValue is CommandPaletteViewModel vm && vm != _viewModel)
+        {
+            SetViewModel(vm);
+        }
+    }
+
+    private void SetViewModel(CommandPaletteViewModel viewModel)
+    {
+        // Unwire old VM if exists
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+        }
+
+        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        DataContext = _viewModel;
+        _selectionConfirmed = false;
+
+        // Wire up new VM events
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        
+        // Wire up list selection to preview if list exists
+        if (_list != null)
+        {
+            // Remove old handler to avoid duplicates
+            _list.SelectionChanged -= OnListSelectionChanged;
+            _list.SelectionChanged += OnListSelectionChanged;
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(_viewModel.SelectedCommand) && _list != null && _viewModel != null)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var sel = _viewModel.SelectedCommand;
+                if (sel != null)
+                {
+                    _list.ScrollIntoView(sel);
+                }
+            }, DispatcherPriority.Background);
+        }
+    }
+
+    private void OnListSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel == null) return;
+        
+        var cmd = _viewModel.SelectedCommand;
+        if (cmd != null)
+        {
+            // Use debounce to avoid rapid flicker, but allow preview on keyboard nav
+            _viewModel.PreviewCommandDebounced(cmd);
+        }
+    }
+
+    private void OnDeactivated(object? sender, EventArgs e)
+    {
+        // Restore original theme when closing without confirming
+        if (!_selectionConfirmed)
+        {
+            _viewModel?.RestoreOriginalTheme();
+        }
+        // Hide instead of Close to avoid unexpectedly affecting owner window state
+        Hide();
+    }
+
+    private void OnListDoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel == null) return;
+        
+        var cmd = _viewModel.SelectedCommand;
+        if (cmd == null)
+            return;
+
+        // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
+        _viewModel.ExecuteSelectedCommand();
+
+        // If this was a theme command (has Id) or a direct action, hide the palette
+        if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
+        {
+            _selectionConfirmed = true;
+            Hide();
+        }
+    }
+
     private void OnListPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_list == null) return;
+        if (_list == null || _viewModel == null) return;
         
         // Find which item is under the pointer
         var point = e.GetPosition(_list);
@@ -130,7 +174,7 @@ public partial class CommandPaletteWindow : Window
 
     private void OnSearchBoxKeyDown(object? sender, KeyEventArgs e)
     {
-        if (_list == null || _viewModel.FilteredCommands.Count == 0)
+        if (_list == null || _viewModel == null || _viewModel.FilteredCommands.Count == 0)
             return;
 
         if (e.Key == Key.Down)
@@ -169,6 +213,8 @@ public partial class CommandPaletteWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (_viewModel == null) return;
+
         if (e.Key == Key.Escape)
         {
             if (_viewModel.InSubmenu)
@@ -181,7 +227,7 @@ public partial class CommandPaletteWindow : Window
 
             // Restore theme to original state if possible
             _viewModel.RestoreOriginalTheme();
-            Close();
+            Hide(); // Hide instead of Close to allow reuse
         }
         else if (e.Key == Key.Enter)
         {
@@ -192,21 +238,23 @@ public partial class CommandPaletteWindow : Window
 
             // If the executed command opened a submenu (e.g. 'Themes...') and it did not
             // represent an actionable theme (no Id), keep the palette open. Otherwise
-            // treat it as a confirmation and close.
+            // treat it as a confirmation and hide.
             if (_viewModel.InSubmenu && string.IsNullOrEmpty(selectedCommand?.Id))
             {
                 e.Handled = true; // remain in submenu
                 return;
             }
 
-            // Confirm selection and close
+            // Confirm selection and hide (not close, to allow reuse)
             _selectionConfirmed = true;
-            Close();
+            Hide();
         }
     }
 
     private void OnListPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (_viewModel == null) return;
+
         // Only handle left-button presses
         var props = e.GetCurrentPoint(this).Properties;
         if (!props.IsLeftButtonPressed)
@@ -227,11 +275,11 @@ public partial class CommandPaletteWindow : Window
             // Execute the selected command via the VM so previews are cancelled and any submenu logic runs
             _viewModel.ExecuteSelectedCommand();
 
-            // If this was a theme command (has Id) or a direct action, close the palette
+            // If this was a theme command (has Id) or a direct action, hide the palette
             if (!_viewModel.InSubmenu || !string.IsNullOrEmpty(cmd.Id))
             {
                 _selectionConfirmed = true;
-                Close();
+                Hide();
             }
         });
     }
@@ -255,8 +303,8 @@ public partial class CommandPaletteWindow : Window
         // Restore theme if not confirmed
         if (!_selectionConfirmed)
         {
-            _viewModel.RestoreOriginalTheme();
+            _viewModel?.RestoreOriginalTheme();
         }
-        Close();
+        Hide(); // Hide instead of Close to allow reuse
     }
 }

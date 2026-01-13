@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private SiteManagerViewModel? _siteManagerViewModel;
     private DispatcherTimer? _welcomeTimer;
     private bool _welcomeDismissed;
+    private CommandPaletteWindow? _commandPaletteWindow; // Reuse single instance
 
     public MainWindow()
     {
@@ -25,6 +26,13 @@ public partial class MainWindow : Window
         
         // Initialize Site Manager
         Opened += OnWindowOpened;
+        
+        // Clean up palette window when main window closes
+        Closing += (_, _) =>
+        {
+            _commandPaletteWindow?.Close();
+            _commandPaletteWindow = null;
+        };
     }
 
     private async void OnWindowOpened(object? sender, EventArgs e)
@@ -187,8 +195,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Ctrl+K to open command palette
-        if (e.Key == Key.K && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        // Ctrl+Space to open command palette
+        if (e.Key == Key.Space && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             e.Handled = true;
             await OpenCommandPalette();
@@ -215,7 +223,7 @@ public partial class MainWindow : Window
         if (themeService == null)
             return;
 
-        // Pass themeService and current theme id for preview/restore support
+        // Create fresh ViewModel each time with current theme state
         var viewModel = new CommandPaletteViewModel(themeService, themeService.CurrentThemeId);
 
         // Register theme commands directly in the outer menu
@@ -231,16 +239,23 @@ public partial class MainWindow : Window
             });
         }
 
-        // Register Site Manager command
-        viewModel.RegisterCommand(new PaletteCommand
+        // Reuse window instance but refresh ViewModel to reset state
+        if (_commandPaletteWindow == null)
         {
-            Name = "Open Site Manager",
-            Category = "Sites",
-            Action = () => OpenSiteManager()
-        });
+            _commandPaletteWindow = new CommandPaletteWindow(viewModel);
+        }
+        else
+        {
+            // Update the DataContext to the fresh ViewModel
+            _commandPaletteWindow.DataContext = viewModel;
+            // Reset window state (search text, selection, etc.) will happen via new VM
+        }
+        
+        // Show modeless so applying themes or focusing doesn't minimize the owner window
+        _commandPaletteWindow.Show();
+        _commandPaletteWindow.Activate();
 
-        var paletteWindow = new CommandPaletteWindow(viewModel);
-        await paletteWindow.ShowDialog(this);
+        await Task.CompletedTask;
     }
 
     private void OnTitleBarPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)

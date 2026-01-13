@@ -170,7 +170,26 @@ public sealed class CommandPaletteViewModel(
         foreach (var command in filtered)
             FilteredCommands.Add(command);
 
-        SelectedCommand = FilteredCommands.FirstOrDefault();
+        // Try to restore the last visited theme selection, otherwise select first item
+        PaletteCommand? itemToSelect = null;
+        
+        // First, try to find the last visited theme
+        var desiredId = themeService?.LastVisitedThemeId ?? _lastVisitedThemeId;
+        if (!string.IsNullOrEmpty(desiredId))
+        {
+            itemToSelect = FilteredCommands.FirstOrDefault(c => c.Id == desiredId);
+        }
+        
+        // If no last visited theme, try current active theme
+        if (itemToSelect == null && themeService != null && !string.IsNullOrEmpty(themeService.CurrentThemeId))
+        {
+            itemToSelect = FilteredCommands.FirstOrDefault(c => c.Id == themeService.CurrentThemeId);
+        }
+        
+        // Fallback to first item
+        itemToSelect ??= FilteredCommands.FirstOrDefault();
+        
+        SelectedCommand = itemToSelect;
     }
 
     public void ExecuteSelectedCommand()

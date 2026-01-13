@@ -106,7 +106,7 @@ dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 - **Persistent Theme Settings**: Theme preference saved to settings.json
 
 ### Command Palette (Slice 1)
-- **Keyboard Shortcut**: Press `Ctrl+K` to open
+- **Keyboard Shortcut**: Press `Ctrl+Space` to open
 - **Submenu Navigation**: Themes grouped under "Themes..." entry
 - **Theme Preview**: Arrow keys preview themes in real-time
 - **Escape Behavior**: Backs out of submenu, or closes palette at top level

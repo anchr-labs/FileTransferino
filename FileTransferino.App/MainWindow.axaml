@@ -166,7 +166,7 @@
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" 
                               HorizontalAlignment="Center">
                             <TextBlock Grid.Row="0" Grid.Column="0" 
-                                       Text="Ctrl+K" 
+                                       Text="Ctrl+Space" 
                                        FontWeight="Bold" 
                                        FontFamily="Consolas"
                                        Foreground="{DynamicResource AccentBrush}"
