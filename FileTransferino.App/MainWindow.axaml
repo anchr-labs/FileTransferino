@@ -166,7 +166,7 @@
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" 
                               HorizontalAlignment="Center">
                             <TextBlock Grid.Row="0" Grid.Column="0" 
-                                       Text="Ctrl+K" 
+                                       Text="Ctrl+Space" 
                                        FontWeight="Bold" 
                                        FontFamily="Consolas"
                                        Foreground="{DynamicResource AccentBrush}"
@@ -200,7 +200,7 @@
                     </StackPanel>
                     
                     <!-- Dismiss hint -->
-                    <TextBlock Text="Auto-closes in 5 seconds • Click to dismiss"
+                    <TextBlock Text="Auto-closes in 4 seconds • Click to dismiss"
                                FontSize="11"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"

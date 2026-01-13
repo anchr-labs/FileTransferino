@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 using FileTransferino.Core.Models;
 using FileTransferino.Infrastructure;
 
@@ -64,7 +65,14 @@ public sealed   class ThemeService(
         set
         {
             settings.LastVisitedThemeId = value;
-            try { settingsStore.Save(settings); } catch { }
+            try
+            {
+                settingsStore.Save(settings);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to persist LastVisitedThemeId: {ex}");
+            }
         }
     }
 
@@ -96,6 +104,9 @@ public sealed   class ThemeService(
             app.Resources.MergedDictionaries.Add(newThemeResource);
             _currentThemeResource = newThemeResource;
             CurrentThemeId = themeId;
+
+            // Update application-level ThemeVariant so standard controls (and Popups) switch base styles
+            app.RequestedThemeVariant = themeId == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
 
             // Persist to settings
             settings.ActiveThemeId = themeId;
@@ -136,6 +147,9 @@ public sealed   class ThemeService(
             app.Resources.MergedDictionaries.Add(newThemeResource);
             _currentThemeResource = newThemeResource;
 
+            // Updated variant for preview
+            app.RequestedThemeVariant = themeId == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
+
             // Do NOT update CurrentThemeId or persist to settings - this is just a preview
             Debug.WriteLine($"Theme previewed (not persisted): {theme.DisplayName}");
         }
@@ -165,6 +179,9 @@ public sealed   class ThemeService(
             var resource = new ResourceInclude(new Uri("avares://FileTransferino.App/")) { Source = new Uri(theme.ResourcePath) };
             app.Resources.MergedDictionaries.Add(resource);
             _currentThemeResource = resource;
+
+            // Restore variant
+            app.RequestedThemeVariant = id == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
 
             // Do not persist or change CurrentThemeId here
             Debug.WriteLine($"Restored active theme: {theme.DisplayName}");

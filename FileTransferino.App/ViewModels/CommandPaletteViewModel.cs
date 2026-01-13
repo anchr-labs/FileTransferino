@@ -27,7 +27,7 @@ public sealed class PaletteCommand
 public sealed class CommandPaletteViewModel(
     IThemeService? themeService = null,
     string? originalThemeId = null,
-    int debounceMilliseconds = 50) : INotifyPropertyChanged
+    int debounceMilliseconds = 200) : INotifyPropertyChanged
 {
     private string _searchText = string.Empty;
     private PaletteCommand? _selectedCommand;
@@ -163,14 +163,33 @@ public sealed class CommandPaletteViewModel(
 
         var filtered = string.IsNullOrWhiteSpace(query)
             ? source
-            : source.Where(c => c.
-                                    Name.ToLowerInvariant().Contains(query) ||
-                                c.Category.ToLowerInvariant().Contains(query));
+            : source.Where(c =>
+                c.Name.ToLowerInvariant().Contains(query) ||
+                c.Category.ToLowerInvariant().Contains(query));
 
         foreach (var command in filtered)
             FilteredCommands.Add(command);
 
-        SelectedCommand = FilteredCommands.FirstOrDefault();
+        // Try to restore the last visited theme selection, otherwise select first item
+        PaletteCommand? itemToSelect = null;
+        
+        // First, try to find the last visited theme
+        var desiredId = themeService?.LastVisitedThemeId ?? _lastVisitedThemeId;
+        if (!string.IsNullOrEmpty(desiredId))
+        {
+            itemToSelect = FilteredCommands.FirstOrDefault(c => c.Id == desiredId);
+        }
+        
+        // If no last visited theme, try current active theme
+        if (itemToSelect == null && themeService != null && !string.IsNullOrEmpty(themeService.CurrentThemeId))
+        {
+            itemToSelect = FilteredCommands.FirstOrDefault(c => c.Id == themeService.CurrentThemeId);
+        }
+        
+        // Fallback to first item
+        itemToSelect ??= FilteredCommands.FirstOrDefault();
+        
+        SelectedCommand = itemToSelect;
     }
 
     public void ExecuteSelectedCommand()

@@ -9,7 +9,7 @@
 
 ### **Before:**
 - Welcome screen with static tips
-- Site Manager hidden behind Command Palette (Ctrl+K → Search → Select)
+- Site Manager hidden behind Command Palette (Ctrl+Space → Search → Select)
 - 3-step process to access core functionality
 - Confusing for new users
 
@@ -77,7 +77,7 @@ Check: HasExistingSites?
 
 | Shortcut | Action | Notes |
 |----------|--------|-------|
-| `Ctrl+K` | Open Command Palette | Power user feature |
+| `Ctrl+Space` | Open Command Palette | Power user feature |
 | `Ctrl+N` | New Site | Quick access |
 | `Ctrl+S` | Save Site | Quick save |
 | `Any Key` | Dismiss Welcome | First run only |
@@ -124,7 +124,7 @@ Check: HasExistingSites?
 ✅ No hidden menus to discover  
 
 ### **For Power Users:**
-✅ Command Palette still accessible (Ctrl+K)  
+✅ Command Palette still accessible (Ctrl+Space)  
 ✅ Keyboard shortcuts for common actions  
 ✅ No time wasted on welcome screens (subsequent runs)  
 ✅ Efficient workflow maintained  
@@ -155,7 +155,7 @@ Check: HasExistingSites?
 - [x] Welcome overlay dismisses on any key press
 - [x] Welcome overlay covers entire window (not just part of it)
 - [x] Subsequent runs skip welcome overlay
-- [x] Ctrl+K opens Command Palette
+- [x] Ctrl+Space opens Command Palette
 - [x] Ctrl+N creates new site
 - [x] Ctrl+S saves current site
 - [x] Sites list loads correctly
