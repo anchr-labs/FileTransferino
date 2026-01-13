@@ -4,7 +4,7 @@
 
 ## Solution Overview
 
-The **FileTransferino.sln** is a .NET 10 solution for a File Transfer application built with clean architecture principles.
+The **FileTransferino.slnx** is a .NET 10 solution for a File Transfer application built with clean architecture principles.
 
 ---
 
@@ -215,16 +215,16 @@ Build succeeded in 4.2s
 
 ```powershell
 # Build
-dotnet build FileTransferino.sln
+dotnet build FileTransferino.slnx
 
 # Clean
-dotnet clean FileTransferino.sln
+dotnet clean FileTransferino.slnx
 
 # Run
 dotnet run --project FileTransferino.App\FileTransferino.App.csproj
 
 # List projects
-dotnet sln FileTransferino.sln list
+dotnet sln FileTransferino.slnx list
 ```
 
 ---

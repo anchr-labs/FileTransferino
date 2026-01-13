@@ -88,7 +88,7 @@ On startup, the app creates the following structure in the user's application da
 ## Building the Solution
 
 ```powershell
-dotnet build FileTransferino.sln
+dotnet build FileTransferino.slnx
 ```
 
 ## Running the Application

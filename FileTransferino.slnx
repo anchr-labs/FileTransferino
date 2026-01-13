@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/FileTransferino.Mobile/">
+    <Project Path="FileTransferino.Mobile/FileTransferino.Mobile.Android/FileTransferino.Mobile.Android.csproj" />
+    <Project Path="FileTransferino.Mobile/FileTransferino.Mobile.Browser/FileTransferino.Mobile.Browser.csproj">
+      <Build Project="false" />
+    </Project>
+    <Project Path="FileTransferino.Mobile/FileTransferino.Mobile.Desktop/FileTransferino.Mobile.Desktop.csproj" />
+    <Project Path="FileTransferino.Mobile/FileTransferino.Mobile.iOS/FileTransferino.Mobile.iOS.csproj" />
+    <Project Path="FileTransferino.Mobile/FileTransferino.Mobile/FileTransferino.Mobile.csproj" />
+  </Folder>
+  <Project Path="FileTransferino.App/FileTransferino.App.csproj" />
+  <Project Path="FileTransferino.Core/FileTransferino.Core.csproj" />
+  <Project Path="FileTransferino.Data/FileTransferino.Data.csproj" />
+  <Project Path="FileTransferino.Infrastructure/FileTransferino.Infrastructure.csproj" />
+  <Project Path="FileTransferino.Security/FileTransferino.Security.csproj" />
+  <Project Path="FileTransferino.UI/FileTransferino.UI.csproj" />
+</Solution>

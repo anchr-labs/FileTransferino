@@ -1,6 +1,6 @@
 ﻿{
   "solution": {
-    "path": "FileTransferino.sln",
+    "path": "FileTransferino.slnx",
     "projects": [
       "FileTransferino.App\\FileTransferino.App.csproj",
       "FileTransferino.Core\\FileTransferino.Core.csproj",
