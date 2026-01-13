@@ -226,18 +226,16 @@ public partial class MainWindow : Window
         // Create fresh ViewModel each time with current theme state
         var viewModel = new CommandPaletteViewModel(themeService, themeService.CurrentThemeId);
 
-        // Register theme commands directly in the outer menu
-        foreach (var theme in themeService.GetThemes())
+        // Register all theme commands at once (batch registration for proper selection)
+        var themeCommands = themeService.GetThemes().Select(theme => new PaletteCommand
         {
-            var themeId = theme.Id; // Capture for closure
-            viewModel.RegisterCommand(new PaletteCommand
-            {
-                Name = theme.DisplayName,
-                Category = "Themes", // Place themes in the outer menu
-                Id = themeId,
-                Action = () => themeService.ApplyTheme(themeId)
-            });
-        }
+            Name = theme.DisplayName,
+            Category = "Themes", // Place themes in the outer menu
+            Id = theme.Id,
+            Action = () => themeService.ApplyTheme(theme.Id)
+        }).ToList();
+        
+        viewModel.RegisterCommands(themeCommands);
 
         // Reuse window instance but refresh ViewModel to reset state
         if (_commandPaletteWindow == null)
